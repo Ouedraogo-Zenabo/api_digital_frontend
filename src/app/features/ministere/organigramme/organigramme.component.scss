@@ -1,0 +1,168 @@
+/* ===== Organigramme : arbre VERTICAL indenté (parent en haut, enfants empilés en dessous) ===== */
+
+$line: #9ccdb4;      // couleur des connecteurs
+$accent: #00843B;    // vert ministériel
+$tick: 38px;         // décalage vertical du connecteur (≈ centre de l'avatar)
+
+.org-scroll {
+  overflow-x: auto;
+  padding: 8px 4px 28px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Listes d'enfants : indentation + ligne verticale guide à gauche */
+.tree ul ul {
+  margin-left: 24px;
+}
+
+.tree li {
+  position: relative;
+}
+
+.tree ul ul > li {
+  padding-left: 30px;
+
+  /* ligne verticale qui relie les frères */
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-left: 2px solid $line;
+  }
+
+  /* le dernier enfant : la verticale s'arrête au niveau de son connecteur */
+  &:last-child::before {
+    bottom: auto;
+    height: $tick;
+  }
+
+  /* connecteur horizontal vers la carte */
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: $tick;
+    width: 30px;
+    border-top: 2px solid $line;
+  }
+}
+
+/* ===== Cartes (disposition horizontale : avatar + texte) ===== */
+.node {
+  padding: 7px 0;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 380px;
+  min-height: 64px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 10px 40px 10px 12px;   /* place à droite pour le chevron */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  cursor: pointer;
+  transition: transform .15s, box-shadow .2s, border-color .2s;
+
+  &:hover {
+    border-color: $accent;
+    box-shadow: 0 8px 22px rgba(0, 132, 59, .16);
+    transform: translateX(2px);
+  }
+
+  &.is-root {
+    border-color: $accent;
+    background: linear-gradient(90deg, #e7f6ee 0%, #ffffff 70%);
+    box-shadow: 0 6px 18px rgba(0, 132, 59, .12);
+    max-width: 420px;
+  }
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e7f6ee;
+  color: $accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #d6efe0;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.card-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: #1f2937;
+  line-height: 1.25;
+}
+
+.card-name {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.card-badge {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: $accent;
+  background: #e7f6ee;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+/* Bouton replier / déplier — à droite de la carte */
+.toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: $accent;
+
+  svg { transition: transform .2s; }
+  &.collapsed svg { transform: rotate(-90deg); }
+}
+
+.count-badge {
+  background: $accent;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}

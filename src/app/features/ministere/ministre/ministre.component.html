@@ -1,0 +1,98 @@
+<!-- Bannière -->
+<div class="relative overflow-hidden bg-gradient-to-r from-[#00843B] to-[#006B30] pt-14 pb-28">
+  <div class="absolute inset-0 opacity-10 pointer-events-none"
+       style="  background-size: 28px 28px;"></div>
+  <div class="container mx-auto px-4 relative">
+    <nav class="text-green-100 text-sm mb-3">
+      <a routerLink="/" class="hover:text-white transition-colors">Accueil</a>
+      <span class="mx-2">›</span>
+      <span class="text-white">Le Ministre</span>
+    </nav>
+    <h1 class="text-3xl sm:text-4xl font-bold text-white">Le Ministre</h1>
+    <p class="text-green-100 mt-1">À la tête du Ministère de la Transition Digitale, des Postes et des Communications Électroniques</p>
+  </div>
+</div>
+
+<section class="bg-gray-50 pb-16">
+  <div class="container mx-auto px-4 max-w-6xl -mt-20 relative">
+
+    <!-- Squelette -->
+    <div *ngIf="loading()" class="grid lg:grid-cols-3 gap-8">
+      <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 animate-pulse h-96"></div>
+      <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-8 animate-pulse h-96"></div>
+    </div>
+
+    <div *ngIf="!loading()" class="grid lg:grid-cols-3 gap-8 items-start">
+
+      <!-- ===== Carte profil (sticky) ===== -->
+      <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden lg:sticky lg:top-24">
+        <!-- Portrait officiel (grand format) -->
+        <div class="relative w-full aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200">
+          <ng-container *ngIf="ministre() as m; else photoFallback">
+            <img loading="lazy" *ngIf="photoUrl(m) as url" [src]="url"
+                 [alt]="m.prenom + ' ' + m.nom" class="absolute inset-0 w-full h-full object-cover object-top"/>
+            <div *ngIf="!photoUrl(m)" class="absolute inset-0 flex items-center justify-center">
+              <svg class="w-28 h-28 text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
+            </div>
+          </ng-container>
+          <ng-template #photoFallback>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg class="w-28 h-28 text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
+            </div>
+          </ng-template>
+          <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 to-transparent"></div>
+          <span class="absolute bottom-3 left-3 inline-block px-3 py-1 text-[11px] font-bold tracking-wide text-white rounded-full bg-[#00843B] shadow-lg">LE MINISTRE</span>
+        </div>
+
+        <div class="px-6 pt-5 pb-6 flex flex-col items-center text-center">
+
+          <h2 class="text-xl font-bold text-gray-900" *ngIf="ministre() as m">
+            {{ m.prenom }} {{ m.nom }}
+          </h2>
+          <p class="text-[#00843B] font-medium text-sm mt-1" *ngIf="ministre()?.profession as p">{{ p }}</p>
+
+          <!-- Attributs -->
+          <div class="w-full mt-6 space-y-2.5 text-left" *ngIf="ministre() as m">
+            <div class="flex items-center gap-3 text-sm rounded-xl bg-gray-50 px-3 py-2.5">
+              <svg class="w-4 h-4 text-[#00843B] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              <span class="text-gray-500">Nom</span>
+              <span class="ml-auto font-medium text-gray-800">{{ m.nom }}</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm rounded-xl bg-gray-50 px-3 py-2.5">
+              <svg class="w-4 h-4 text-[#00843B] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              <span class="text-gray-500">Prénom</span>
+              <span class="ml-auto font-medium text-gray-800">{{ m.prenom }}</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm rounded-xl bg-gray-50 px-3 py-2.5">
+              <svg class="w-4 h-4 text-[#00843B] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <span class="text-gray-500">Fonction</span>
+              <span class="ml-auto font-medium text-gray-800 text-right">{{ m.profession }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Contenu (Biographie) ===== -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- Biographie -->
+        <div *ngIf="ministre()?.biographie as bio"
+             class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8">
+          <div class="flex items-center gap-3 mb-5">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#fdecec] text-[#E30613]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </span>
+            <h3 class="text-lg font-bold text-gray-900">Biographie</h3>
+          </div>
+          <div class="content-article text-gray-700 leading-relaxed text-justify" [innerHTML]="formatContentTailwind(bio)"></div>
+        </div>
+
+        <!-- État vide -->
+        <div *ngIf="!ministre()?.biographie"
+             class="bg-white rounded-3xl shadow-sm border border-gray-100 p-10 text-center text-gray-400">
+          Les informations détaillées seront publiées prochainement.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

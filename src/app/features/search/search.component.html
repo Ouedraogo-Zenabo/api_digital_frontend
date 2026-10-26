@@ -1,0 +1,107 @@
+<!-- Bannière + recherche -->
+<div class="relative overflow-hidden bg-gradient-to-r from-[#00843B] to-[#006B30] py-12">
+  <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-size: 28px 28px;"></div>
+  <div class="container mx-auto px-4 relative max-w-4xl">
+    <h1 class="text-2xl sm:text-3xl font-bold text-white mb-4">Recherche</h1>
+    <form (ngSubmit)="submit()" class="relative">
+      <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+      <input type="text" [(ngModel)]="input" name="q" autofocus
+             placeholder="Rechercher sur tout le site : actualité, projet, document, ministre, média, service…"
+             class="w-full pl-12 pr-28 py-3.5 rounded-2xl text-slate-800 shadow-lg focus:outline-none focus:ring-4 focus:ring-white/30"/>
+      <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 bg-[#00843B] text-white text-sm font-medium rounded-xl hover:bg-[#006e31] transition-colors">
+        Rechercher
+      </button>
+    </form>
+  </div>
+</div>
+
+<section class="py-10 bg-gray-50 min-h-[55vh]">
+  <div class="container mx-auto px-4 max-w-4xl [&_mark]:bg-[#fff3b0] [&_mark]:text-slate-900 [&_mark]:rounded [&_mark]:px-0.5">
+
+    <!-- Chargement -->
+    <div *ngIf="loading()" class="space-y-3">
+      <div *ngFor="let s of [1,2,3,4]" class="bg-white border border-slate-100 rounded-2xl p-5 animate-pulse h-20"></div>
+    </div>
+
+    <ng-container *ngIf="!loading()">
+      <!-- Suggestions « Vouliez-vous dire… » (fautes de frappe / accents) -->
+      <div *ngIf="query() && suggestions().length > 0" class="mb-6 flex flex-wrap items-center gap-2">
+        <span class="text-sm text-slate-500">Vouliez-vous dire :</span>
+        <button *ngFor="let s of suggestions()" type="button" (click)="searchSuggestion(s)"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border border-[#00843B]/30 text-[#00843B] bg-[#00843B]/5 hover:bg-[#00843B]/10 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+          {{ s }}
+        </button>
+      </div>
+
+      <!-- État initial (aucune requête) -->
+      <div *ngIf="!query()" class="text-center py-16 text-slate-400">
+        <svg class="w-14 h-14 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+        <p>Saisissez un terme pour rechercher dans tout le site.</p>
+      </div>
+
+      <!-- Aucun résultat -->
+      <div *ngIf="query() && grandTotal() === 0" class="text-center py-16 bg-white rounded-2xl border border-slate-100">
+        <svg class="w-14 h-14 text-slate-200 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <p class="text-slate-600 font-medium">Aucun résultat pour « {{ query() }} »</p>
+        <p class="text-slate-400 text-sm mt-1">Essayez d'autres mots-clés.</p>
+      </div>
+
+      <!-- Résultats -->
+      <div *ngIf="query() && grandTotal() > 0">
+        <p class="text-sm text-slate-500 mb-4">
+          <span class="font-semibold text-slate-800">{{ grandTotal() }}</span> résultat(s) pour « {{ query() }} »
+        </p>
+
+        <!-- Filtres par type (chips) -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <button type="button" (click)="setFilter('all')"
+                  class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+                  [ngClass]="activeFilter() === 'all' ? 'bg-[#00843B] text-white border-[#00843B]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#00843B]/40'">
+            Tout ({{ grandTotal() }})
+          </button>
+          @for (f of filters(); track f.type) {
+            <button type="button" (click)="setFilter(f.type)"
+                    class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+                    [ngClass]="activeFilter() === f.type ? 'bg-[#00843B] text-white border-[#00843B]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#00843B]/40'">
+              {{ f.label }} ({{ f.count }})
+            </button>
+          }
+        </div>
+
+        <!-- Liste (triée par pertinence) -->
+        <div class="space-y-3">
+          <a *ngFor="let item of results()" (click)="open(item)"
+             class="group flex items-start gap-4 bg-white border border-slate-200 rounded-2xl p-4 hover:shadow-md hover:border-[#00843B]/30 transition-all cursor-pointer">
+            <span class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" [ngClass]="iconClass(item.type)">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{{ labelOf(item.type) }}</span>
+                <span *ngIf="item.category" class="text-[11px] text-slate-400">{{ item.category }}</span>
+              </div>
+              <h3 class="font-semibold text-slate-800 group-hover:text-[#00843B] truncate"
+                  [innerHTML]="item.highlights?.['title'] || item.title"></h3>
+              <p *ngIf="item.excerpt" class="text-sm text-slate-500 line-clamp-2 mt-0.5" [innerHTML]="item.excerpt"></p>
+            </div>
+            <svg class="w-5 h-5 text-slate-300 group-hover:text-[#00843B] flex-shrink-0 mt-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="totalPages() > 1" class="flex justify-center items-center gap-4 mt-8">
+          <button (click)="prevPage()" [disabled]="page() === 0"
+                  class="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            Précédent
+          </button>
+          <span class="text-sm text-slate-500">Page {{ page() + 1 }} / {{ totalPages() }}</span>
+          <button (click)="nextPage()" [disabled]="page() >= totalPages() - 1"
+                  class="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            Suivant
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</section>

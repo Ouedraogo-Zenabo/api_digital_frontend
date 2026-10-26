@@ -1,0 +1,77 @@
+<div class="space-y-6 max-w-3xl">
+
+  <div>
+    <h1 class="text-2xl font-bold text-neutral-900">Entreprises agréées (TIC)</h1>
+    <p class="text-neutral-500">
+      Liste (PDF) des entreprises détentrices de l'agrément technique en matières informatiques.
+      La section n'apparaît sur l'accueil que si elle est <b>activée</b> et qu'un fichier est joint.
+    </p>
+  </div>
+
+  @if (loading()) {
+    <div class="card p-8 text-center"><div class="spinner w-8 h-8 mx-auto"></div></div>
+  } @else {
+    <div class="card p-6 space-y-5">
+
+      <div>
+        <label class="label">Intitulé <span class="text-red-500">*</span></label>
+        <input type="text" [(ngModel)]="form.title" name="title" maxlength="300" class="input"
+               placeholder="Liste des entreprises détentrices de l'agrément technique…">
+      </div>
+
+      <div>
+        <label class="label">Descriptif (facultatif)</label>
+        <textarea [(ngModel)]="form.description" name="description" rows="2" maxlength="500" class="input resize-y"></textarea>
+      </div>
+
+      <div>
+        <label class="label">Fichier PDF @if (!config()?.fileUrl) { <span class="text-red-500">*</span> }</label>
+        <input type="file" accept="application/pdf" (change)="onFileSelected($event)" class="input">
+        @if (config()?.fileUrl) {
+          <p class="text-xs text-neutral-500 mt-1">
+            Fichier actuel :
+            <a [href]="currentUrl" target="_blank" rel="noopener" class="text-[#00843B] font-medium hover:underline">ouvrir le PDF</a>.
+            Laissez vide pour le conserver.
+          </p>
+        }
+        @if (selectedFile) {
+          <p class="text-xs text-neutral-500 mt-1">Nouveau fichier : {{ selectedFile.name }}</p>
+        }
+      </div>
+
+      <label class="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100 cursor-pointer select-none">
+        <input type="checkbox" [(ngModel)]="form.active" name="active"
+               class="w-4 h-4 mt-0.5 rounded border-slate-300 text-primary-600 focus:ring-primary-400">
+        <span class="text-sm text-slate-700">
+          <span class="font-medium">Afficher sur la page d'accueil</span>
+          <span class="block text-xs text-slate-400">La section « Agrément technique — TIC » devient visible pour les visiteurs.</span>
+        </span>
+      </label>
+
+      <div class="flex justify-end pt-2 border-t border-neutral-200">
+        <button (click)="save()" [disabled]="saving()"
+                class="px-5 py-2 rounded-lg bg-[#00843B] text-white hover:bg-[#006830] disabled:opacity-50 transition-colors font-medium flex items-center gap-2">
+          @if (saving()) { <div class="spinner w-4 h-4"></div> }
+          Enregistrer
+        </button>
+      </div>
+    </div>
+
+    @if (config()?.fileUrl) {
+      <div class="card p-0 overflow-hidden">
+        <div class="px-4 py-2.5 bg-slate-800 text-white text-sm font-medium">Aperçu</div>
+        <iframe [src]="currentUrl + '#view=FitH' | safeUrl" title="Aperçu de la liste des entreprises agréées"
+                class="w-full h-[480px] bg-white" loading="lazy"></iframe>
+      </div>
+    }
+  }
+</div>
+
+@if (notification().show) {
+  <div class="fixed top-4 right-4 z-50">
+    <div [ngClass]="notification().type === 'success' ? 'bg-green-50 border-green-500 text-green-700' : 'bg-red-50 border-red-500 text-red-700'"
+      class="border-l-4 rounded-lg shadow-lg p-5 max-w-sm text-sm font-medium animate-fade-in">
+      {{ notification().message }}
+    </div>
+  </div>
+}

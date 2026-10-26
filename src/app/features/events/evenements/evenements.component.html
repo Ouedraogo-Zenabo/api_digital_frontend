@@ -1,0 +1,140 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- ===================== Bannière ===================== -->
+  <div class="relative overflow-hidden bg-gradient-to-r from-[#00843B] to-[#006B30] py-16">
+    <div class="absolute inset-0 opacity-10 pointer-events-none"
+         style="  background-size: 28px 28px;"></div>
+    <div class="absolute -top-16 -right-10 w-80 h-80 bg-[#FCD116]/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="container mx-auto px-4 relative">
+      <nav class="text-green-100 text-sm mb-3 animate-fade-in">
+        <a routerLink="/" class="hover:text-white transition-colors">Accueil</a>
+        <span class="mx-2">›</span>
+        <span class="text-white">Agenda des événements</span>
+      </nav>
+      <div class="flex items-center gap-4 animate-fade-in-up">
+        <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center flex-shrink-0">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-display font-bold text-white">Agenda des événements</h1>
+          <p class="text-green-100 text-sm mt-1 max-w-2xl">Les événements organisés par le ministère.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== Filtres + recherche (sticky) ===================== -->
+  <section class="py-4 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm sticky top-0 z-20">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div class="flex flex-wrap gap-2">
+          @for (f of [
+            {key:'all', label:'Tous'},
+            {key:'UPCOMING', label:'À venir'},
+            {key:'ONGOING', label:'En cours'},
+            {key:'COMPLETED', label:'Passés'},
+            {key:'CANCELLED', label:'Annulés'}
+          ]; track f.key) {
+            <button (click)="filterByStatus(f.key)"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+              [ngClass]="selectedStatus === f.key ? 'bg-[#00843B] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+              {{ f.label }}
+              <span class="text-xs px-1.5 py-0.5 rounded-full"
+                    [ngClass]="selectedStatus === f.key ? 'bg-white/20' : 'bg-white text-slate-500'">{{ countByStatus(f.key) }}</span>
+            </button>
+          }
+        </div>
+        <div class="relative w-full lg:w-72 lg:ml-auto">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+          <input type="text" [ngModel]="searchQuery" (ngModelChange)="onSearch($event)"
+            placeholder="Rechercher un événement"
+            class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Liste ===================== -->
+  <section class="py-12">
+    <div class="container mx-auto px-4 max-w-6xl">
+      @if (loading()) {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden flex">
+              <div class="w-28 bg-slate-200 animate-pulse"></div>
+              <div class="flex-1 p-6 space-y-3">
+                <div class="h-4 w-1/3 bg-slate-200 rounded animate-pulse"></div>
+                <div class="h-5 w-3/4 bg-slate-200 rounded animate-pulse"></div>
+                <div class="h-4 w-full bg-slate-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (filteredEvents().length === 0) {
+        <div class="text-center py-20 bg-white rounded-2xl border border-slate-200">
+          <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <p class="text-slate-500 mb-4">Aucun événement ne correspond à votre recherche.</p>
+          <button (click)="resetFilters()" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#00843B] border border-[#00843B] rounded-xl hover:bg-[#e7f6ee] transition-colors">
+            Réinitialiser les filtres
+          </button>
+        </div>
+      } @else {
+        <p class="text-sm text-slate-500 mb-5">
+          <span class="font-semibold text-slate-800">{{ filteredEvents().length }}</span> événement(s)
+          @if (selectedStatus !== 'all' || searchQuery) { <button (click)="resetFilters()" class="ml-2 text-[#00843B] hover:underline">réinitialiser</button> }
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          @for (event of filteredEvents(); track event.id) {
+            <div class="group bg-white rounded-2xl border border-slate-200 shadow-soft overflow-hidden flex cursor-pointer hover:shadow-soft-lg hover:-translate-y-0.5 transition-all animate-fade-in"
+                 [routerLink]="['/evenements', event.id]">
+              <!-- Pastille date -->
+              <div class="w-28 flex-shrink-0 bg-[#E30613] text-white flex flex-col items-center justify-center text-center p-4">
+                <span class="text-3xl font-bold leading-none">{{ getDay(event.startDate) }}</span>
+                <span class="text-sm uppercase mt-1">{{ getMonth(event.startDate) }}</span>
+                <span class="text-xs opacity-80">{{ getYear(event.startDate) }}</span>
+              </div>
+
+              <div class="flex-1 p-5 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                  @if (showCountdown(event)) {
+                    <span [ngClass]="countdownClass(event)" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      {{ countdownLabel(event) }}
+                    </span>
+                  }
+                  <span [class]="getStatusClass(event.status)" class="px-2.5 py-0.5 rounded-full text-xs font-medium">{{ getStatusLabel(event.status) }}</span>
+                  @if (event.isOnline) { <span class="px-2.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">En ligne</span> }
+                  @if (event.isFree) { <span class="px-2.5 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">Gratuit</span> }
+                </div>
+
+                <h3 class="text-lg font-display font-semibold text-slate-900 leading-snug group-hover:text-[#00843B] transition-colors line-clamp-2">{{ event.title }}</h3>
+                <p class="text-slate-500 text-sm mt-1.5 mb-3 line-clamp-2">{{ stripHtml(event.description) }}</p>
+
+                <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-400">
+                  <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    {{ formatDate(event.startDate) }} – {{ formatDate(event.endDate) }}
+                  </span>
+                  @if (event.location) {
+                    <span class="flex items-center gap-1.5">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                      {{ event.location }}
+                    </span>
+                  }
+                  @if (event.maxParticipants) {
+                    <span class="flex items-center gap-1.5">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                      {{ event.maxParticipants }} places
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</div>

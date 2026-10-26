@@ -1,0 +1,366 @@
+<header class="bg-white fixed top-0 left-0 right-0 z-50 shadow-sm w-full">
+  <!-- Bandeau Flash Info figé, au-dessus de la navbar -->
+  <app-flash-ticker />
+  <div class="w-full max-w-[1800px] mx-auto px-4 sm:px-6 xl:px-8">
+    <div class="flex items-center h-16 sm:h-20 justify-between gap-2">
+
+      <!-- Logo + Sigle -->
+      <a routerLink="/" class="flex items-center gap-2 flex-shrink-0" >
+        <!-- Logo -->
+        <div class="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
+          <img loading="lazy"
+            [src]="ministere()?.logo ? getImageUrl(ministere()!.logo) : 'assets/images/armoirie.png'"
+            [alt]="ministere()?.nomReel || 'Burkina Faso'"
+            class="w-full h-full object-contain"
+          />
+        </div>
+
+        <!-- Sigle du Ministère + Burkina Faso -->
+       <div class="hidden md:flex flex-col leading-tight max-w-[10rem]">
+          <span class="text-base font-bold text-slate-900 break-words leading-tight">
+            {{ ministere()?.acronyme || 'Burkina Faso' }}
+          </span>
+          <span class="text-xs font-medium text-danger-500">
+            Burkina Faso
+          </span>
+        </div>
+      </a>
+
+      <!-- Navigation Desktop (à partir de 1440px : en dessous, le menu « hamburger » prend le relais) -->
+      <nav class="hidden min-[1440px]:flex flex-1 items-center justify-center gap-0.5 mx-3">
+
+<a (click)="goToAccueil()"
+   class="px-2 py-2 rounded-lg text-[13px] font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 transition-colors whitespace-nowrap cursor-pointer">
+   Accueil
+</a>
+
+<div class="relative group">
+  <!-- Bouton parent (cliquable : ouvre la vue d'ensemble) -->
+  <a routerLink="/ministere" (click)="activeSection = ''"
+    [ngClass]="{
+      'text-primary-600 bg-primary-50': isMinistereActive(),
+      'text-slate-600': !isMinistereActive()
+    }"
+    class="px-2 py-2 rounded-lg text-[13px] font-medium hover:text-primary-600 hover:bg-primary-50 flex items-center gap-1 transition-colors whitespace-nowrap cursor-pointer">
+    Ministère
+    <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </a>
+
+  <!-- Dropdown -->
+  <div class="absolute top-full left-0 pt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+   <div class="bg-white rounded-lg shadow-md border border-slate-100 py-1">
+    <a routerLink="/ministere"
+       routerLinkActive="text-primary-600 bg-primary-50"
+       [routerLinkActiveOptions]="{ exact: true }"
+       class="block px-4 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+       Vue d'ensemble
+    </a>
+    <a routerLink="/ministere/ministre"
+       routerLinkActive="text-primary-600 bg-primary-50"
+       [routerLinkActiveOptions]="{ exact: true }"
+       class="block px-4 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+       Ministre
+    </a>
+
+    <a routerLink="/ministere/missions"
+       routerLinkActive="text-primary-600 bg-primary-50"
+       [routerLinkActiveOptions]="{ exact: true }"
+       class="block px-4 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+       Missions &  Visions
+    </a>
+    <a routerLink="/ministere/organigramme"
+       routerLinkActive="text-primary-600 bg-primary-50"
+       [routerLinkActiveOptions]="{ exact: true }"
+       class="block px-4 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+       Organisation 
+    </a>
+    <a routerLink="/ministere/structures"
+       routerLinkActive="text-primary-600 bg-primary-50"
+       [routerLinkActiveOptions]="{ exact: true }"
+       class="block px-4 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+       Structures Rattachées
+    </a>
+     <a routerLink="/ministere/anciens-ministres"
+       routerLinkActive="text-primary-600 bg-primary-50"
+       [routerLinkActiveOptions]="{ exact: true }"
+       class="block px-4 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+       Anciens Ministres
+    </a>
+   </div>
+  </div>
+</div>
+
+        <a routerLink="/actualites" (click)="activeSection = ''"
+          routerLinkActive="text-primary-600 bg-primary-50"
+          class="px-2 py-2 rounded-lg text-[13px] font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 transition-colors whitespace-nowrap">
+          Actualités
+        </a>
+
+        <a routerLink="/communiques" (click)="activeSection = ''"
+          routerLinkActive="text-primary-600 bg-primary-50"
+          class="px-2 py-2 rounded-lg text-[13px] font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 transition-colors whitespace-nowrap">
+          Communiqués
+        </a>
+
+        <a routerLink="/projets" (click)="activeSection = ''"
+          routerLinkActive="text-primary-600 bg-primary-50"
+          class="px-2 py-2 rounded-lg text-[13px] font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 transition-colors whitespace-nowrap">
+          Grands Chantiers
+        </a>
+
+        <a routerLink="/services" (click)="activeSection = ''"
+          routerLinkActive="text-primary-600 bg-primary-50"
+          class="px-2 py-2 rounded-lg text-[13px] font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 transition-colors whitespace-nowrap">
+          Services
+        </a>
+
+        <a routerLink="/evenements" (click)="activeSection = ''"
+          routerLinkActive="text-primary-600 bg-primary-50" class="px-2 py-2 rounded-lg text-[13px] font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 transition-colors whitespace-nowrap">
+          Événements
+        </a>
+
+        <a routerLink="/mediatheque" (click)="activeSection = ''"
+          routerLinkActive="text-primary-600 bg-primary-50" class="px-2 py-2 rounded-lg text-[13px] font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 transition-colors whitespace-nowrap">
+          Médiathèque
+        </a>
+
+        <div class="relative group">
+          <!-- Bouton parent (cliquable : ouvre la vue d'ensemble) -->
+          <a routerLink="/ressources" (click)="activeSection = ''"
+            [ngClass]="{
+              'text-primary-600 bg-primary-50': isRessourcesActive(),
+              'text-slate-600': !isRessourcesActive()
+            }"
+            class="px-2 py-2 rounded-lg text-[13px] font-medium hover:text-primary-600 hover:bg-primary-50 flex items-center gap-1 transition-colors whitespace-nowrap cursor-pointer">
+            Ressources
+            <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </a>
+
+                <!-- Dropdown -->
+              <div class="absolute top-full left-0 pt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div class="bg-white rounded-lg shadow-md border border-slate-100 py-1">
+                  <a routerLink="/ressources"
+                    routerLinkActive="text-primary-600 bg-primary-50"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="block px-4 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                    Vue d'ensemble
+                  </a>
+                  <a routerLink="/ressources/documents"
+                    routerLinkActive="text-primary-600 bg-primary-50"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="block px-4 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                    Règlementation
+                  </a>
+                  <a routerLink="/ressources/politiques"
+                    routerLinkActive="text-primary-600 bg-primary-50"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="block px-4 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                    Stratégie
+                  </a>
+                  <a routerLink="/faq"
+                    routerLinkActive="text-primary-600 bg-primary-50"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="block px-4 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                    FAQ
+                  </a>
+                </div>
+                </div>
+        </div>
+
+        <a
+          routerLink="/contact"
+          (click)="activeSection = ''"
+          routerLinkActive="text-primary-600 bg-primary-50"
+          class="px-2 py-2 rounded-lg text-[13px] font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 transition-colors whitespace-nowrap">
+          Contact
+        </a>
+      </nav>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <button (click)="toggleSearch()" [attr.aria-label]="searchOpen() ? 'Fermer la recherche' : 'Ouvrir la recherche'"
+                [attr.aria-expanded]="searchOpen()" class="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
+        <a routerLink="/admin" class="hidden min-[1440px]:inline-flex items-center gap-2 px-3 py-2 bg-primary-500 text-white text-[13px] font-medium rounded-lg hover:bg-primary-600 transition-colors whitespace-nowrap" style="background-color: #00843B;">
+          Administration
+        </a>
+        <button (click)="toggleMobileMenu()" class="min-[1440px]:hidden p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors" aria-label="Menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path *ngIf="mobileMenuOpen()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <path *ngIf="!mobileMenuOpen()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== Barre de recherche globale (instantanée) ===================== -->
+  <div *ngIf="searchOpen()" class="border-t border-slate-100 bg-white shadow-sm">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-3">
+      <form (ngSubmit)="doSearch()" class="relative">
+        <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input [ngModel]="searchQuery" (ngModelChange)="onSearchInput($event)" (keydown)="onSearchKeydown($event)"
+               name="globalSearch" autocomplete="off" #searchBox
+               placeholder="Rechercher sur tout le site : actualité, projet, document, ministre, média, service…"
+               class="w-full pl-11 pr-44 py-3 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        <div class="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          <button type="submit" class="px-4 py-1.5 bg-[#00843B] text-white text-sm font-medium rounded-lg hover:bg-[#006e31] transition-colors">Rechercher</button>
+          <button type="button" (click)="toggleSearch()" aria-label="Fermer" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Menu déroulant de résultats instantanés -->
+        @if (searchQuery.trim().length >= minLength) {
+          <div class="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50">
+            @if (searching()) {
+              <div class="px-4 py-6 text-center text-sm text-slate-400">
+                <svg class="w-5 h-5 mx-auto mb-2 animate-spin text-[#00843B]" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z"></path>
+                </svg>
+                Recherche en cours…
+              </div>
+            } @else if (previewResults().length > 0) {
+              <ul class="max-h-[70vh] overflow-y-auto divide-y divide-slate-50">
+                @for (r of previewResults(); track r.type + r.id; let i = $index) {
+                  <li>
+                    <button type="button" (click)="openResult(r)"
+                            (mouseenter)="activeIndex.set(i)"
+                            class="w-full flex items-start gap-3 px-4 py-2.5 text-left transition-colors"
+                            [ngClass]="activeIndex() === i ? 'bg-[#f0fdf4]' : 'hover:bg-slate-50'">
+                      <span class="mt-0.5 flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide bg-[#E6F5EB] text-[#00843B]">{{ labelOf(r.type) }}</span>
+                      <span class="flex-1 min-w-0">
+                        <span class="block text-sm font-medium text-slate-800 truncate [&_mark]:bg-[#fff3b0] [&_mark]:text-slate-900 [&_mark]:rounded [&_mark]:px-0.5" [innerHTML]="r.highlights?.['title'] || r.title"></span>
+                        <span class="block text-xs text-slate-400 truncate [&_mark]:bg-[#fff3b0] [&_mark]:text-slate-600 [&_mark]:rounded" [innerHTML]="r.excerpt"></span>
+                      </span>
+                      <svg class="w-4 h-4 text-slate-300 flex-shrink-0 mt-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                  </li>
+                }
+              </ul>
+              <button type="button" (click)="doSearch()"
+                      class="w-full px-4 py-2.5 text-sm font-medium text-[#00843B] bg-slate-50 hover:bg-slate-100 transition-colors border-t border-slate-100">
+                Voir tous les résultats ({{ liveResults().length }}) →
+              </button>
+            } @else {
+              <div class="px-4 py-6 text-center text-sm text-slate-400">
+                Aucun résultat pour « {{ searchQuery }} ».
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="absolute left-0 top-full mt-2 text-xs text-slate-400 px-1">Saisissez au moins {{ minLength }} caractères.</p>
+        }
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Menu Mobile ===================== -->
+  <div
+    class="min-[1440px]:hidden border-t border-slate-100 bg-white overflow-y-auto overscroll-contain transition-[max-height,opacity] duration-300 ease-in-out"
+    [ngClass]="mobileMenuOpen() ? 'max-h-[calc(100vh-4rem)] opacity-100' : 'max-h-0 opacity-0'">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-1">
+
+      <a (click)="goToAccueil(); closeMobileMenu()"
+         class="px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-colors cursor-pointer">
+         Accueil
+      </a>
+
+      <!-- Ministère (sous-menu) -->
+      <div>
+        <button (click)="toggleSubmenu('ministere')"
+          [ngClass]="{ 'text-primary-600 bg-primary-50': isMinistereActive() }"
+          class="w-full flex items-center justify-between px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+          <span>Ministère</span>
+          <svg class="w-5 h-5 transition-transform" [ngClass]="openSubmenu() === 'ministere' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div *ngIf="openSubmenu() === 'ministere'" class="pl-4 mt-1 flex flex-col gap-1">
+          <a routerLink="/ministere" (click)="closeMobileMenu()" routerLinkActive="text-primary-600 bg-primary-50" [routerLinkActiveOptions]="{ exact: true }" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">Vue d'ensemble</a>
+          <a routerLink="/ministere/ministre" (click)="closeMobileMenu()" routerLinkActive="text-primary-600 bg-primary-50" class="block px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">Le Ministre</a>
+          <a routerLink="/ministere/anciens-ministres" (click)="closeMobileMenu()" routerLinkActive="text-primary-600 bg-primary-50" class="block px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">Anciens Ministres</a>
+          <a routerLink="/ministere/missions" (click)="closeMobileMenu()" routerLinkActive="text-primary-600 bg-primary-50" class="block px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">Missions</a>
+          <a routerLink="/ministere/organigramme" (click)="closeMobileMenu()" routerLinkActive="text-primary-600 bg-primary-50" class="block px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">Organigramme</a>
+          <a routerLink="/ministere/structures" (click)="closeMobileMenu()" routerLinkActive="text-primary-600 bg-primary-50" class="block px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">Structures Rattachées</a>
+        </div>
+      </div>
+
+      <a routerLink="/actualites" (click)="activeSection = ''; closeMobileMenu()"
+         routerLinkActive="text-primary-600 bg-primary-50"
+         class="px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+         Actualités
+      </a>
+
+      <a routerLink="/communiques" (click)="activeSection = ''; closeMobileMenu()"
+         routerLinkActive="text-primary-600 bg-primary-50"
+         class="px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+         Communiqués
+      </a>
+
+      <a routerLink="/projets" (click)="activeSection = ''; closeMobileMenu()"
+         routerLinkActive="text-primary-600 bg-primary-50"
+         class="px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+         Grands Chantiers
+      </a>
+
+      <a routerLink="/services" (click)="activeSection = ''; closeMobileMenu()"
+         routerLinkActive="text-primary-600 bg-primary-50"
+         class="px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+         Services
+      </a>
+
+      <a routerLink="/evenements" (click)="activeSection = ''; closeMobileMenu()"
+         routerLinkActive="text-primary-600 bg-primary-50"
+         class="px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+         Événements
+      </a>
+
+      <a routerLink="/mediatheque" (click)="activeSection = ''; closeMobileMenu()"
+         routerLinkActive="text-primary-600 bg-primary-50"
+         class="px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+         Médiathèque
+      </a>
+
+      <!-- Ressources (sous-menu) -->
+      <div>
+        <button (click)="toggleSubmenu('ressources')"
+          [ngClass]="{ 'text-primary-600 bg-primary-50': isRessourcesActive() }"
+          class="w-full flex items-center justify-between px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+          <span>Ressources</span>
+          <svg class="w-5 h-5 transition-transform" [ngClass]="openSubmenu() === 'ressources' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div *ngIf="openSubmenu() === 'ressources'" class="pl-4 mt-1 flex flex-col gap-1">
+          <a routerLink="/ressources" (click)="closeMobileMenu()" routerLinkActive="text-primary-600 bg-primary-50" [routerLinkActiveOptions]="{ exact: true }" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">Vue d'ensemble</a>
+          <a routerLink="/ressources/documents" (click)="closeMobileMenu()" routerLinkActive="text-primary-600 bg-primary-50" class="block px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">Règlementation</a>
+          <a routerLink="/ressources/politiques" (click)="closeMobileMenu()" routerLinkActive="text-primary-600 bg-primary-50" class="block px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">Stratégie</a>
+          <a routerLink="/faq" (click)="closeMobileMenu()" routerLinkActive="text-primary-600 bg-primary-50" class="block px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors">FAQ</a>
+        </div>
+      </div>
+
+      <a routerLink="/contact" (click)="activeSection = ''; closeMobileMenu()"
+         routerLinkActive="text-primary-600 bg-primary-50"
+         class="px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+         Contact
+      </a>
+
+      <a routerLink="/admin" (click)="closeMobileMenu()"
+         class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 text-white text-sm font-medium rounded-lg transition-colors"
+         style="background-color: #00843B;">
+         Administration
+      </a>
+    </nav>
+  </div>
+</header>

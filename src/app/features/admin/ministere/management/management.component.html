@@ -1,0 +1,94 @@
+<div class="p-4 sm:p-6 max-w-6xl mx-auto">
+
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-800">Ministère & Ministre</h1>
+    <p class="text-slate-500 mt-1">Gérez les informations du ministère et du ministre.</p>
+  </div>
+
+  <!-- Onglets -->
+  <div class="border-b border-slate-200 mb-5">
+    <nav class="flex gap-1 -mb-px">
+      <button (click)="selectTab('ministere')"
+        class="px-4 py-3 text-sm font-medium border-b-2 transition-colors"
+        [ngClass]="activeTab() === 'ministere' ? 'border-[#00843B] text-[#00843B]' : 'border-transparent text-slate-500 hover:text-slate-700'">
+        Ministère
+        <span class="ml-1 text-xs px-2 py-0.5 rounded-full"
+          [ngClass]="activeTab() === 'ministere' ? 'bg-[#e7f6ee] text-[#00843B]' : 'bg-slate-100 text-slate-500'">{{ ministeres().length }}</span>
+      </button>
+      <button (click)="selectTab('ministre')"
+        class="px-4 py-3 text-sm font-medium border-b-2 transition-colors"
+        [ngClass]="activeTab() === 'ministre' ? 'border-[#00843B] text-[#00843B]' : 'border-transparent text-slate-500 hover:text-slate-700'">
+        Ministre
+        <span class="ml-1 text-xs px-2 py-0.5 rounded-full"
+          [ngClass]="activeTab() === 'ministre' ? 'bg-[#e7f6ee] text-[#00843B]' : 'bg-slate-100 text-slate-500'">{{ ministres().length }}</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Onglet Ministère -->
+  <div *ngIf="activeTab() === 'ministere'">
+    <app-data-table [columns]="ministereCols" [rows]="ministeres()" [loading]="loadingMinistere()"
+                    [rowActions]="minActions" searchPlaceholder="Rechercher un ministère"
+                    emptyText="Aucun ministère">
+      <ng-template #toolbar>
+        <button (click)="newMinistere()" class="inline-flex items-center gap-2 px-4 py-2 bg-[#00843B] text-white text-sm font-medium rounded-lg hover:bg-[#006e31]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Nouveau ministère
+        </button>
+      </ng-template>
+    </app-data-table>
+    <ng-template #minActions let-row>
+      <div class="flex justify-end gap-2">
+        <button (click)="editMinistere(row)" class="p-2 border-2 border-green-500 rounded-full bg-white hover:bg-green-50 transition" title="Modifier">
+          <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        </button>
+        <button (click)="askDeleteMinistere(row)" class="p-2 border-2 border-red-500 rounded-full bg-white hover:bg-red-50 transition" title="Supprimer">
+          <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Onglet Ministre -->
+  <div *ngIf="activeTab() === 'ministre'">
+    <app-data-table [columns]="ministreCols" [rows]="ministres()" [loading]="loadingMinistre()"
+                    [rowActions]="ministreActions" searchPlaceholder="Rechercher un ministre"
+                    emptyText="Aucun ministre">
+      <ng-template #toolbar>
+        <button (click)="newMinistre()" class="inline-flex items-center gap-2 px-4 py-2 bg-[#00843B] text-white text-sm font-medium rounded-lg hover:bg-[#006e31]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Nouveau ministre
+        </button>
+      </ng-template>
+    </app-data-table>
+    <ng-template #ministreActions let-row>
+      <div class="flex justify-end gap-2">
+        <button (click)="editMinistre(row)" class="p-2 border-2 border-green-500 rounded-full bg-white hover:bg-green-50 transition" title="Modifier">
+          <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        </button>
+        <button (click)="askDeleteMinistre(row)" class="p-2 border-2 border-red-500 rounded-full bg-white hover:bg-red-50 transition" title="Supprimer">
+          <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Confirmation -->
+<div *ngIf="confirmModal().show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" (click)="closeConfirm()">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5" (click)="$event.stopPropagation()">
+    <h3 class="font-semibold text-slate-800">Confirmer la suppression</h3>
+    <p class="text-sm text-slate-500 mt-1">{{ confirmModal().message }}</p>
+    <div class="flex justify-end gap-2 mt-5">
+      <button (click)="closeConfirm()" class="px-4 py-2 text-sm border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50">Annuler</button>
+      <button (click)="confirmModal().onConfirm()" class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div *ngIf="notification().show"
+  class="fixed bottom-5 right-5 z-[60] px-4 py-3 rounded-lg shadow-lg text-sm text-white"
+  [ngClass]="notification().type === 'success' ? 'bg-[#00843B]' : 'bg-red-600'">
+  {{ notification().message }}
+</div>

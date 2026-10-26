@@ -1,0 +1,191 @@
+<div class="p-4 sm:p-6 max-w-4xl mx-auto">
+
+  <!-- En-tête profil -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 mb-6 flex items-center gap-5">
+    <div class="w-20 h-20 rounded-2xl bg-[#00843B] text-white flex items-center justify-center text-2xl font-bold flex-shrink-0">
+      {{ initials }}
+    </div>
+    <div class="min-w-0">
+      <h1 class="text-xl font-bold text-slate-800 truncate">
+        {{ (user()?.firstName || '') + ' ' + (user()?.lastName || '') | titlecase }}
+        <span *ngIf="!user()?.firstName && !user()?.lastName">{{ user()?.username }}</span>
+      </h1>
+      <p class="text-slate-500 text-sm truncate">{{ user()?.email }}</p>
+      <div class="flex flex-wrap gap-1.5 mt-2">
+        <span *ngFor="let r of user()?.roles"
+          class="text-xs font-medium px-2 py-0.5 rounded-full bg-[#e7f6ee] text-[#00843B]">
+          {{ r.replace('ROLE_', '') }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="border-b border-slate-200 mb-5">
+    <nav class="flex gap-1 -mb-px">
+      <button (click)="activeTab.set('profil')"
+        class="px-4 py-3 text-sm font-medium border-b-2 transition-colors"
+        [ngClass]="activeTab() === 'profil' ? 'border-[#00843B] text-[#00843B]' : 'border-transparent text-slate-500 hover:text-slate-700'">
+        Mon profil
+      </button>
+      <button (click)="activeTab.set('securite')"
+        class="px-4 py-3 text-sm font-medium border-b-2 transition-colors"
+        [ngClass]="activeTab() === 'securite' ? 'border-[#00843B] text-[#00843B]' : 'border-transparent text-slate-500 hover:text-slate-700'">
+        Sécurité
+      </button>
+      <button (click)="activeTab.set('compte')"
+        class="px-4 py-3 text-sm font-medium border-b-2 transition-colors"
+        [ngClass]="activeTab() === 'compte' ? 'border-[#00843B] text-[#00843B]' : 'border-transparent text-slate-500 hover:text-slate-700'">
+        Compte
+      </button>
+    </nav>
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-10 text-slate-400 text-sm">Chargement</div>
+
+  <ng-container *ngIf="!loading()">
+
+    <!-- ===== Onglet Profil ===== -->
+    <div *ngIf="activeTab() === 'profil'" class="bg-white border border-slate-200 rounded-2xl p-6">
+      <h2 class="font-semibold text-slate-800 mb-5">Informations personnelles</h2>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Prénom</label>
+          <input type="text" [(ngModel)]="profile.firstName"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nom</label>
+          <input type="text" [(ngModel)]="profile.lastName"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input type="email" [(ngModel)]="profile.email"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Téléphone</label>
+          <input type="text" [(ngModel)]="profile.phone"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Poste / Fonction</label>
+          <input type="text" [(ngModel)]="profile.position"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Direction / Service</label>
+          <input type="text" [(ngModel)]="profile.department"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+      </div>
+      <div class="flex justify-end mt-6">
+        <button (click)="saveProfile()" [disabled]="savingProfile()"
+          class="px-5 py-2 text-sm bg-[#00843B] text-white rounded-lg hover:bg-[#006e31] disabled:opacity-50">
+          {{ savingProfile() ? 'Enregistrement' : 'Enregistrer les modifications' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== Onglet Sécurité ===== -->
+    <div *ngIf="activeTab() === 'securite'" class="bg-white border border-slate-200 rounded-2xl p-6 max-w-lg">
+      <h2 class="font-semibold text-slate-800 mb-1">Changer le mot de passe</h2>
+      <p class="text-sm text-slate-500 mb-5">Saisissez votre mot de passe actuel puis le nouveau.</p>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Mot de passe actuel</label>
+          <input [type]="showPwd() ? 'text' : 'password'" [(ngModel)]="pwd.oldPassword" autocomplete="current-password"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nouveau mot de passe</label>
+          <input [type]="showPwd() ? 'text' : 'password'" [(ngModel)]="pwd.newPassword" autocomplete="new-password"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Confirmer le nouveau mot de passe</label>
+          <input [type]="showPwd() ? 'text' : 'password'" [(ngModel)]="pwd.confirm" autocomplete="new-password"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <label class="flex items-center gap-2 text-sm text-slate-600">
+          <input type="checkbox" [ngModel]="showPwd()" (ngModelChange)="showPwd.set($event)"/>
+          Afficher les mots de passe
+        </label>
+      </div>
+
+      <div class="flex justify-end mt-6">
+        <button (click)="changePassword()" [disabled]="savingPwd()"
+          class="px-5 py-2 text-sm bg-[#00843B] text-white rounded-lg hover:bg-[#006e31] disabled:opacity-50">
+          {{ savingPwd() ? 'Modification' : 'Modifier le mot de passe' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== Onglet Compte ===== -->
+    <div *ngIf="activeTab() === 'compte'" class="space-y-6">
+      <div class="bg-white border border-amber-200 rounded-2xl p-6">
+        <h2 class="font-semibold text-slate-800 mb-1">Désactiver mon compte</h2>
+        <p class="text-sm text-slate-500 mb-4">
+          Votre compte sera désactivé et vous serez déconnecté. Un administrateur pourra le réactiver ultérieurement.
+        </p>
+        <button (click)="ask('deactivate')"
+          class="px-4 py-2 text-sm border border-amber-500 text-amber-700 rounded-lg hover:bg-amber-50">
+          Désactiver mon compte
+        </button>
+      </div>
+
+      <div class="bg-white border border-red-200 rounded-2xl p-6">
+        <h2 class="font-semibold text-red-700 mb-1">Supprimer mon compte</h2>
+        <p class="text-sm text-slate-500 mb-4">
+          Cette action est <span class="font-semibold">irréversible</span>. Toutes vos données de compte seront supprimées.
+        </p>
+        <button (click)="ask('delete')"
+          class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
+          Supprimer définitivement mon compte
+        </button>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- Confirmation -->
+<div *ngIf="confirmAction()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" (click)="cancelConfirm()">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5" (click)="$event.stopPropagation()">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+           [ngClass]="confirmAction() === 'delete' ? 'bg-red-50' : 'bg-amber-50'">
+        <svg class="w-5 h-5" [ngClass]="confirmAction() === 'delete' ? 'text-red-600' : 'text-amber-600'"
+             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="font-semibold text-slate-800">
+          {{ confirmAction() === 'delete' ? 'Supprimer le compte ?' : 'Désactiver le compte ?' }}
+        </h3>
+        <p class="text-sm text-slate-500 mt-1">
+          {{ confirmAction() === 'delete'
+              ? 'Cette action est irréversible. Vous serez déconnecté immédiatement.'
+              : 'Votre compte sera désactivé et vous serez déconnecté.' }}
+        </p>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-5">
+      <button (click)="cancelConfirm()" class="px-4 py-2 text-sm border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50">Annuler</button>
+      <button (click)="confirmDanger()" [disabled]="processing()"
+        class="px-4 py-2 text-sm text-white rounded-lg disabled:opacity-50"
+        [ngClass]="confirmAction() === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'">
+        {{ processing() ? '' : 'Confirmer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div *ngIf="notification().show"
+  class="fixed bottom-5 right-5 z-[60] px-4 py-3 rounded-lg shadow-lg text-sm text-white"
+  [ngClass]="notification().type === 'success' ? 'bg-[#00843B]' : 'bg-red-600'">
+  {{ notification().message }}
+</div>

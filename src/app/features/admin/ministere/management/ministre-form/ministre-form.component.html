@@ -1,0 +1,105 @@
+<div class="p-4 sm:p-6 max-w-4xl mx-auto">
+
+  <!-- En-tête -->
+  <div class="flex items-center gap-3 mb-6">
+    <button (click)="cancel()" class="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50" title="Retour">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">{{ isEdit ? 'Modifier le ministre' : 'Nouveau ministre' }}</h1>
+      <p class="text-slate-500 text-sm">Identité, fonction et biographie</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-10 text-slate-400 text-sm">Chargement</div>
+
+  <form *ngIf="!loading()" (ngSubmit)="save()" class="space-y-6">
+
+    <!-- Identité -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-center gap-5">
+        <div class="w-24 h-24 rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center flex-shrink-0">
+          <img loading="lazy" *ngIf="photoPreview()" [src]="photoPreview()" alt="photo" class="w-full h-full object-cover"/>
+          <svg *ngIf="!photoPreview()" class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Photo</label>
+          <input type="file" accept="image/*" (change)="onPhoto($event)" class="text-sm"/>
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nom <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="form.nom" name="nom"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Prénom <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="form.prenom" name="prenom"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Profession / Fonction</label>
+          <input type="text" [(ngModel)]="form.profession" name="profession"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Ministère</label>
+          <select [(ngModel)]="form.ministereId" name="ministereId"
+                  class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none">
+            <option [ngValue]="0">— Aucun —</option>
+            <option *ngFor="let m of ministeres()" [ngValue]="m.id">{{ m.acronyme || m.nomGeneral }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Dates de mandat -->
+      <div class="grid sm:grid-cols-2 gap-4 mt-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Début du mandat</label>
+          <input type="date" [(ngModel)]="form.dateDebut" name="dateDebut"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Fin du mandat</label>
+          <input type="date" [(ngModel)]="form.dateFin" name="dateFin"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+          <p class="text-xs text-slate-400 mt-1">Laissez vide pour le ministre en fonction.</p>
+        </div>
+      </div>
+
+      <label class="inline-flex items-center gap-2 text-sm text-slate-700 mt-4">
+        <input type="checkbox" [(ngModel)]="form.isActif" name="isActif"/>
+        Ministre actif (affiché publiquement)
+      </label>
+    </div>
+
+    <!-- Biographie -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6">
+      <label class="block font-semibold text-slate-800 mb-2">Biographie</label>
+      <p-editor [(ngModel)]="form.biographie" name="biographie"></p-editor>
+    </div>
+
+    <!-- Mot du Ministre (affiché sur la page d'accueil) -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6">
+      <label class="block font-semibold text-slate-800 mb-1">Mot du Ministre</label>
+      <p class="text-xs text-slate-400 mb-2">Message affiché dans la section « Mot de la Ministre » de la page d'accueil (uniquement pour le ministre actif).</p>
+      <p-editor [(ngModel)]="form.content" name="content"></p-editor>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3">
+      <button type="button" (click)="cancel()" class="px-5 py-2 text-sm border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50">Annuler</button>
+      <button type="submit" [disabled]="saving()" class="px-5 py-2 text-sm bg-[#00843B] text-white rounded-lg hover:bg-[#006e31] disabled:opacity-50">
+        {{ saving() ? 'Enregistrement' : (isEdit ? 'Mettre à jour' : 'Créer') }}
+      </button>
+    </div>
+  </form>
+</div>
+
+<div *ngIf="notification().show"
+  class="fixed bottom-5 right-5 z-[60] px-4 py-3 rounded-lg shadow-lg text-sm text-white"
+  [ngClass]="notification().type === 'success' ? 'bg-[#00843B]' : 'bg-red-600'">
+  {{ notification().message }}
+</div>

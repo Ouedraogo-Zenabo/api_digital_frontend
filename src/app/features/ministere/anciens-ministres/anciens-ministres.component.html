@@ -1,0 +1,110 @@
+<!-- Bannière -->
+<div class="relative overflow-hidden bg-gradient-to-r from-[#00843B] to-[#006B30] pt-14 pb-28">
+  <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-size: 28px 28px;"></div>
+  <div class="container mx-auto px-4 relative">
+    <nav class="text-green-100 text-sm mb-3">
+      <a routerLink="/" class="hover:text-white transition-colors">Accueil</a>
+      <span class="mx-2">›</span>
+      <a routerLink="/ministere/ministre" class="hover:text-white transition-colors">Ministère</a>
+      <span class="mx-2">›</span>
+      <span class="text-white">Anciens Ministres</span>
+    </nav>
+    <h1 class="text-3xl sm:text-4xl font-bold text-white">Anciens Ministres</h1>
+    <p class="text-green-100 mt-1">Celles et ceux qui ont dirigé le Ministère, avec la période de leur mandat</p>
+  </div>
+</div>
+
+<section class="bg-gray-50 pb-16">
+  <div class="container mx-auto px-4 max-w-6xl -mt-20 relative">
+
+    <!-- Squelette de chargement -->
+    <div *ngIf="loading()" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let i of [1,2,3]" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 animate-pulse h-72"></div>
+    </div>
+
+    <ng-container *ngIf="!loading()">
+
+      <!-- Liste des Anciens Ministres -->
+      <div *ngIf="total() > 0; else aucun"
+           class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <article *ngFor="let m of pagedAnciens()"
+                 class="group bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow flex flex-col">
+
+          <!-- Photo -->
+          <div class="relative h-56 bg-gray-100 overflow-hidden">
+            <img loading="lazy" *ngIf="getImageUrl(m.photo)" [src]="getImageUrl(m.photo)" [alt]="m.prenom + ' ' + m.nom"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+            <svg *ngIf="!getImageUrl(m.photo)" class="w-full h-full text-gray-300 p-16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+            </svg>
+
+            <!-- Badge période de mandat -->
+            <span class="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 text-[#00843B] text-xs font-bold shadow-sm">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              {{ mandat(m) }}
+            </span>
+          </div>
+
+          <!-- Infos -->
+          <div class="p-5 flex flex-col flex-1">
+            <h2 class="text-lg font-bold text-gray-900">{{ m.prenom }} {{ m.nom }}</h2>
+            <p class="text-[#00843B] font-medium text-sm mt-0.5">{{ m.profession }}</p>
+
+            <!-- Détail des dates de mandat -->
+            <div class="mt-4 space-y-1.5 text-sm">
+              <div class="flex items-center gap-2 text-gray-600">
+                <span class="w-2 h-2 rounded-full bg-[#00843B]"></span>
+                <span class="text-gray-500">Début du mandat :</span>
+                <span class="font-medium text-gray-800">{{ formatDate(m.dateDebut) || 'Non renseigné' }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-gray-600">
+                <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+                <span class="text-gray-500">Fin du mandat :</span>
+                <span class="font-medium text-gray-800">{{ formatDate(m.dateFin) || 'Non renseigné' }}</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="total() > 0 && totalPages() > 1"
+           class="flex justify-center items-center gap-4 mt-10">
+        <button (click)="prevPage()" [disabled]="currentPage() === 1"
+                class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Précédent
+        </button>
+
+        <span class="text-sm font-medium text-gray-600">
+          Page {{ currentPage() }} / {{ totalPages() }}
+        </span>
+
+        <button (click)="nextPage()" [disabled]="currentPage() >= totalPages()"
+                class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          Suivant
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Aucun ancien ministre -->
+      <ng-template #aucun>
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 text-center py-16 px-6">
+          <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-2a4 4 0 10-4-4 4 4 0 004 4z"/>
+          </svg>
+          <h3 class="text-lg font-semibold text-gray-700 mb-2">Aucun ancien ministre</h3>
+          <p class="text-gray-500">Les Anciens Ministres apparaîtront ici dès qu'ils seront renseignés.</p>
+        </div>
+      </ng-template>
+
+    </ng-container>
+  </div>
+</section>

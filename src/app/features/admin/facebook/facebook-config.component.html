@@ -1,0 +1,101 @@
+<div class="space-y-6 max-w-3xl">
+  <div>
+    <h1 class="text-2xl font-bold text-neutral-900">Intégration Facebook</h1>
+    <p class="text-neutral-500">Configurez la page et le jeton d'accès utilisés pour publier et récupérer le contenu Facebook du ministère.</p>
+  </div>
+
+  @if (loading()) {
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+      <div class="h-5 w-1/3 bg-slate-200 rounded animate-pulse"></div>
+      <div class="h-10 w-full bg-slate-200 rounded animate-pulse"></div>
+      <div class="h-10 w-full bg-slate-200 rounded animate-pulse"></div>
+    </div>
+  } @else {
+    <form (ngSubmit)="save()" class="bg-white rounded-2xl border border-slate-200 shadow-soft p-6 sm:p-8 space-y-5">
+
+      <!-- En-tête statut -->
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+        <span class="w-11 h-11 rounded-xl bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+        </span>
+        <div>
+          <p class="font-semibold text-slate-800">Page Facebook</p>
+          <p class="text-xs" [ngClass]="existing() ? 'text-green-600' : 'text-slate-400'">
+            {{ existing() ? 'Configuration enregistrée' : 'Aucune configuration enregistrée' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Libellé -->
+      <div>
+        <label class="label">Libellé interne</label>
+        <input type="text" [(ngModel)]="form.label" name="label" class="input" placeholder="Ex : Page officielle MTDPCE">
+      </div>
+
+      <!-- Page ID -->
+      <div>
+        <label class="label">Page ID <span class="text-danger-500">*</span></label>
+        <input type="text" [(ngModel)]="form.pageId" name="pageId" class="input" placeholder="308567739007291" required>
+        <p class="text-xs text-slate-400 mt-1">Identifiant numérique de la page Facebook.</p>
+      </div>
+
+      <!-- Access token -->
+      <div>
+        <label class="label">
+          Jeton d'accès (Access Token) <span class="text-danger-500" *ngIf="!existing()">*</span>
+          <span *ngIf="existing()" class="text-xs font-normal text-slate-400">— laisser vide pour conserver l'actuel</span>
+        </label>
+        <div class="relative">
+          <input [type]="reveal() ? 'text' : 'password'" [(ngModel)]="form.accessToken" name="accessToken"
+                 class="input pr-24 font-mono text-xs"
+                 [placeholder]="existing() ? '•••••••••• (jeton enregistré)' : 'EAAU…'" autocomplete="off">
+          <button type="button" (click)="reveal.set(!reveal())"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
+            {{ reveal() ? 'Masquer' : 'Afficher' }}
+          </button>
+        </div>
+        <p class="text-xs mt-1" [ngClass]="form.accessToken ? 'text-slate-500' : 'text-slate-400'">
+          @if (form.accessToken) { Aperçu : <span class="font-mono">{{ tokenPreview }}</span> }
+          @else if (existing() && form.hasToken) { Un jeton est déjà enregistré (non affiché pour des raisons de sécurité). }
+          @else { Jeton « longue durée » de la page (≈ 60 jours). }
+        </p>
+      </div>
+
+      <!-- Active -->
+      <div class="flex items-center gap-2">
+        <input type="checkbox" [(ngModel)]="form.active" name="active" id="fbActive"
+               class="rounded border-slate-300 text-[#00843B] focus:ring-[#00843B]">
+        <label for="fbActive" class="text-sm text-slate-700">Configuration active</label>
+      </div>
+
+      <!-- Avertissement sécurité -->
+      <div class="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+        <p>Le jeton d'accès est un secret : il n'est jamais affiché en clair après enregistrement et ne doit pas être partagé. En cas de fuite, régénérez-le dans Meta for Developers.</p>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-2 border-t border-slate-100">
+        <button type="submit" [disabled]="saving() || !canSave"
+                class="btn-primary" style="background-color: #00843B;">
+          @if (saving()) { <div class="spinner w-4 h-4 mr-2"></div> }
+          {{ existing() ? 'Mettre à jour' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>
+
+<!-- Notification -->
+@if (notification().show) {
+  <div class="fixed top-4 right-4 z-[70] pointer-events-none">
+    <div [ngClass]="{
+        'bg-green-50 border-green-500 text-green-700': notification().type === 'success',
+        'bg-red-50 border-red-500 text-red-700': notification().type === 'error',
+        'bg-blue-50 border-blue-500 text-blue-700': notification().type === 'info' }"
+      class="pointer-events-auto border-l-4 rounded-lg shadow-lg p-5 max-w-sm w-full flex items-center gap-4 animate-fade-in">
+      <svg *ngIf="notification().type === 'success'" class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      <svg *ngIf="notification().type === 'error'" class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      <span class="text-sm font-medium">{{ notification().message }}</span>
+    </div>
+  </div>
+}

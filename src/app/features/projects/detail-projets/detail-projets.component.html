@@ -1,0 +1,183 @@
+@if (loading()) {
+  <!-- Loader -->
+  <div class="min-h-[60vh] flex items-center justify-center bg-neutral-50">
+    <div class="flex flex-col items-center gap-3">
+      <div class="w-12 h-12 border-4 border-[#E6F5EB] border-t-[#00843B] rounded-full animate-spin"></div>
+      <span class="text-sm text-neutral-500">Chargement du projet</span>
+    </div>
+  </div>
+}
+
+@else if (project()) {
+
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-gradient-to-r from-[#00843B] to-[#006B30] text-white">
+    <div class="absolute inset-0 opacity-10 pointer-events-none"
+         style="  background-size: 28px 28px;"></div>
+    <div class="absolute -top-16 -right-10 w-80 h-80 bg-[#FCD116]/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative container mx-auto px-4 py-12 lg:py-14">
+      <div class="max-w-5xl mx-auto">
+
+        <nav class="text-green-100 text-sm mb-4 animate-fade-in">
+          <a routerLink="/" class="hover:text-white transition-colors">Accueil</a>
+          <span class="mx-2">›</span>
+          <a routerLink="/projets" class="hover:text-white transition-colors">Grands Chantiers</a>
+          <span class="mx-2">›</span>
+          <span class="text-white">Détail</span>
+        </nav>
+
+        <a routerLink="/projets"
+           class="group inline-flex items-center text-white/80 hover:text-white transition-colors">
+          <svg class="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Retour aux projets
+        </a>
+
+        <div class="flex flex-wrap items-center gap-3 mt-6">
+          @if (project()!.status) {
+            <span [class]="getStatusBadgeClass(project()!.status)">{{ getStatusLabel(project()!.status) }}</span>
+          }
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+            {{ project()!.progressPercentage }}% réalisé
+          </span>
+        </div>
+
+        <h1 class="text-3xl lg:text-4xl font-display font-bold mt-4 leading-tight" style="color: white;">
+          {{ project()!.name }}
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 text-sm text-white/85">
+          @if (project()!.partner) {
+            <span class="inline-flex items-center gap-2">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-2a4 4 0 10-4-4 4 4 0 004 4z"/>
+              </svg>
+              {{ project()!.partner }}
+            </span>
+          }
+          @if (project()!.responsibleDepartment) {
+            <span class="inline-flex items-center gap-2">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+              {{ project()!.responsibleDepartment }}
+            </span>
+          }
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENU -->
+  <section class="pb-16 bg-neutral-50">
+    <div class="container mx-auto px-4">
+      <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 -mt-8 relative">
+
+        <!-- COLONNE GAUCHE -->
+        <div class="lg:col-span-2 space-y-6">
+
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 lg:p-8">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#f0fdf4] text-[#00843B]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </span>
+              <h2 class="text-lg font-display font-bold text-slate-800">Description</h2>
+            </div>
+            <div class="content-article text-slate-600 leading-relaxed"
+                 [innerHTML]="renderRich(project()!.description)"></div>
+          </div>
+
+          @if (project()!.objectives) {
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 lg:p-8">
+              <div class="flex items-center gap-3 mb-4">
+                <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#f0fdf4] text-[#00843B]">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </span>
+                <h2 class="text-lg font-display font-bold text-slate-800">Objectifs</h2>
+              </div>
+              <div class="content-article text-slate-600 leading-relaxed"
+                   [innerHTML]="renderRich(project()!.objectives)"></div>
+            </div>
+          }
+
+        </div>
+
+        <!-- COLONNE DROITE -->
+        <div class="space-y-6">
+
+          <!-- PROGRESSION -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-5">Progression</h3>
+
+            <div class="relative w-32 h-32 mx-auto">
+              <svg class="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#e2e8f0" stroke-width="10"></circle>
+                <circle cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-linecap="round"
+                        class="transition-all duration-700"
+                        [attr.stroke]="getProgressColor(project()!)"
+                        stroke-dasharray="326.73"
+                        [style.stroke-dashoffset]="326.73 - (326.73 * project()!.progressPercentage / 100)"></circle>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-3xl font-bold text-slate-800">{{ project()!.progressPercentage }}%</span>
+                <span class="text-xs text-slate-400">réalisé</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- INFORMATIONS -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">Informations</h3>
+
+            <ul class="divide-y divide-slate-100 text-sm">
+
+              @if (project()!.status) {
+                <li class="flex items-center justify-between py-3">
+                  <span class="text-slate-500">Statut</span>
+                  <span [class]="getStatusBadgeClass(project()!.status)">{{ getStatusLabel(project()!.status) }}</span>
+                </li>
+              }
+
+              @if (project()!.budget) {
+                <li class="flex items-center justify-between py-3">
+                  <span class="text-slate-500">Budget</span>
+                  <span class="font-semibold text-[#00843B]">{{ formatBudget(project()!.budget!) }}</span>
+                </li>
+              }
+
+              @if (project()!.startDate) {
+                <li class="flex items-center justify-between py-3">
+                  <span class="text-slate-500">Début</span>
+                  <span class="font-medium text-slate-800">{{ formatDate(project()!.startDate!) }}</span>
+                </li>
+              }
+
+              @if (project()!.endDate) {
+                <li class="flex items-center justify-between py-3">
+                  <span class="text-slate-500">Fin prévue</span>
+                  <span class="font-medium text-slate-800">{{ formatDate(project()!.endDate!) }}</span>
+                </li>
+              }
+
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+}
+
+@else {
+  <div class="py-20 text-center">
+    <h2 class="text-lg font-semibold text-neutral-600">Projet non trouvé</h2>
+  </div>
+}

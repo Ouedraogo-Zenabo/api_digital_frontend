@@ -1,0 +1,121 @@
+<!-- Bannière -->
+<div class="relative overflow-hidden bg-gradient-to-r from-[#00843B] to-[#006B30] py-14">
+  <div class="absolute inset-0 opacity-10 pointer-events-none"
+       style="  background-size: 28px 28px;"></div>
+  <div class="container mx-auto px-4 relative">
+    <nav class="text-green-100 text-sm mb-3">
+      <a routerLink="/" class="hover:text-white transition-colors">Accueil</a>
+      <span class="mx-2">›</span>
+      <span class="text-white">Documents juridiques</span>
+    </nav>
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center flex-shrink-0">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l9-3 9 3M5 10v8m14-8v8M4 18h16M9 10v8m6-8v8"/></svg>
+      </div>
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-bold text-white">Lois, décrets & textes officiels</h1>
+        <p class="text-green-100 text-sm mt-1">Consultez et téléchargez les textes réglementaires du ministère</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="py-10 bg-gray-50 min-h-[60vh]">
+  <div class="container mx-auto px-4 max-w-6xl">
+
+    <!-- Recherche -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-3 mb-6 flex flex-col sm:flex-row gap-3">
+      <div class="flex-1 relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+        <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="search()" placeholder="Rechercher un texte (loi, décret, sujet...)"
+               class="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+      </div>
+      <button (click)="search()" class="px-6 py-2.5 bg-[#00843B] text-white text-sm font-medium rounded-xl hover:bg-[#006e31] transition-colors">Rechercher</button>
+    </div>
+
+    <!-- Chargement -->
+    <div *ngIf="loading()" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div *ngFor="let s of [1,2,3,4]" class="bg-white border border-slate-100 rounded-2xl p-5 animate-pulse h-28"></div>
+    </div>
+
+    <div *ngIf="!loading()" class="grid lg:grid-cols-4 gap-6">
+
+      <!-- Filtres catégories -->
+      <aside class="lg:col-span-1">
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 lg:sticky lg:top-24">
+          <h4 class="font-semibold text-slate-700 mb-3 text-sm uppercase tracking-wide">Catégories</h4>
+          <ul class="space-y-1.5">
+            <li>
+              <button (click)="selectType(null)"
+                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors"
+                [ngClass]="!selectedType() ? 'bg-[#e7f6ee] text-[#00843B] font-medium' : 'text-slate-600 hover:bg-slate-50'">
+                Toutes
+                <span class="text-xs px-1.5 py-0.5 rounded-full bg-white border border-slate-200">{{ totalAll() }}</span>
+              </button>
+            </li>
+            <li *ngFor="let c of categories()">
+              <button (click)="selectType(c.key)"
+                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors"
+                [ngClass]="selectedType() === c.key ? 'bg-[#e7f6ee] text-[#00843B] font-medium' : 'text-slate-600 hover:bg-slate-50'">
+                {{ getCategoryLabel(c.key) }}
+                <span class="text-xs px-1.5 py-0.5 rounded-full bg-white border border-slate-200">{{ c.count }}</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Liste documents -->
+      <div class="lg:col-span-3">
+        <p class="text-sm text-slate-500 mb-4">
+          <span class="font-semibold text-slate-800">{{ filteredCount() }}</span> texte(s)
+          {{ selectedType() ? ' — ' + getCategoryLabel(selectedType()!) : '' }}
+        </p>
+
+        <div *ngIf="documents().length === 0" class="text-center py-16 bg-white rounded-2xl border border-slate-100">
+          <svg class="w-14 h-14 text-slate-200 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <p class="text-slate-500 font-medium">Aucun document trouvé</p>
+        </div>
+
+        <div class="space-y-3">
+          <div *ngFor="let doc of documents()"
+               class="group bg-white border border-slate-200 rounded-2xl p-4 flex items-start gap-4 hover:shadow-md hover:border-[#00843B]/30 transition-all">
+            <!-- Icône -->
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" [ngClass]="categoryStyle(doc.category).icon">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            </div>
+            <!-- Infos -->
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-slate-800 leading-snug">{{ doc.title }}</h3>
+              <p *ngIf="doc.description" class="text-sm text-slate-500 mt-0.5 line-clamp-2">{{ stripHtml(doc.description) }}</p>
+              <div class="flex flex-wrap items-center gap-2 mt-2 text-xs">
+                <span class="font-medium px-2 py-0.5 rounded-full" [ngClass]="categoryStyle(doc.category).badge">{{ getCategoryLabel(doc.category) }}</span>
+                <span *ngIf="doc.fileSize" class="text-slate-400">{{ formatFileSize(doc.fileSize) }}</span>
+                <span *ngIf="doc.createdAt" class="text-slate-400">· {{ doc.createdAt | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+            <!-- Télécharger -->
+            <button *ngIf="doc.filePath" (click)="downloadFile(doc)"
+              class="flex-shrink-0 inline-flex items-center gap-2 px-3.5 py-2 bg-[#00843B] text-white text-sm rounded-xl hover:bg-[#006e31] transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span class="hidden sm:inline">Télécharger</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="totalPages() > 1" class="flex flex-wrap justify-center items-center gap-1.5 mt-6">
+          <button (click)="prevPage()" [disabled]="currentPage() === 1"
+            class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-white">‹</button>
+          <button *ngFor="let page of pages()" (click)="goToPage(page)"
+            class="px-3.5 py-1.5 text-sm rounded-lg border transition-colors"
+            [ngClass]="currentPage() === page ? 'bg-[#00843B] text-white border-[#00843B]' : 'border-slate-300 hover:bg-white'">
+            {{ page }}
+          </button>
+          <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
+            class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-white">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,233 @@
+<div class="p-4 sm:p-6 max-w-6xl mx-auto">
+
+  <!-- En-tête -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-800">Paramètres & Catégories</h1>
+    <p class="text-slate-500 mt-1">
+      Gérez les types de document, les types de projet et les catégories d'article.
+    </p>
+  </div>
+
+  <!-- Onglets -->
+  <div class="border-b border-slate-200 mb-5">
+    <nav class="flex flex-wrap gap-1 -mb-px">
+      <button *ngFor="let tab of tabs"
+        (click)="selectTab(tab.key)"
+        class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors"
+        [ngClass]="activeTab() === tab.key
+          ? 'border-[#00843B] text-[#00843B]'
+          : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'">
+        {{ tab.label }}
+        <span class="text-xs px-2 py-0.5 rounded-full"
+          [ngClass]="activeTab() === tab.key ? 'bg-[#e7f6ee] text-[#00843B]' : 'bg-slate-100 text-slate-500'">
+          {{ tabCount(tab.key) }}
+        </span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Barre d'outils -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+    <div class="relative w-full sm:max-w-xs">
+      <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
+      </svg>
+      <input type="text"
+        [ngModel]="search()" (ngModelChange)="search.set($event); onSearch()"
+        placeholder="Rechercher"
+        class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+    </div>
+
+    <button (click)="openCreate()"
+      class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#00843B] text-white text-sm font-medium rounded-lg hover:bg-[#006e31] transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Ajouter
+    </button>
+  </div>
+
+  <!-- Tableau -->
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+
+    <div *ngIf="loading()" class="p-10 text-center text-slate-400 text-sm">Chargement</div>
+
+    <ng-container *ngIf="!loading()">
+      <div *ngIf="paginated().length === 0" class="p-12 text-center">
+        <svg class="w-14 h-14 text-slate-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h7"/>
+        </svg>
+        <p class="text-slate-500 font-medium">Aucun élément</p>
+        <p class="text-slate-400 text-sm">Cliquez sur « Ajouter » pour créer le premier.</p>
+      </div>
+
+      <table *ngIf="paginated().length > 0" class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide">
+          <tr>
+            <th *ngIf="isArticles()" class="text-left font-semibold px-4 py-3 w-40">Code</th>
+            <th class="text-left font-semibold px-4 py-3">{{ isArticles() || isMediaCats() ? 'Libellé' : 'Nom' }}</th>
+            <th class="text-left font-semibold px-4 py-3 hidden md:table-cell">Description</th>
+            <th *ngIf="isArticles() || isMediaCats()" class="text-center font-semibold px-4 py-3 w-24">{{ isMediaCats() ? 'Médias' : 'Articles' }}</th>
+            <th class="text-right font-semibold px-4 py-3 w-28">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr *ngFor="let row of paginated()" class="hover:bg-slate-50/70 transition-colors">
+            <td *ngIf="isArticles()" class="px-4 py-3">
+              <span class="inline-block text-xs font-semibold px-2 py-1 rounded bg-[#e7f6ee] text-[#00843B]">{{ row.badge }}</span>
+            </td>
+            <td class="px-4 py-3 font-medium text-slate-800">{{ row.primary }}</td>
+            <td class="px-4 py-3 text-slate-500 hidden md:table-cell">
+              <span class="line-clamp-2">{{ row.description || '—' }}</span>
+            </td>
+            <td *ngIf="isArticles() || isMediaCats()" class="px-4 py-3 text-center text-slate-600">{{ row.count ?? 0 }}</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-end gap-1">
+                <button (click)="openEdit(row)" title="Modifier"
+                  class="p-2 rounded-lg text-slate-500 hover:text-[#00843B] hover:bg-[#e7f6ee] transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </button>
+                <button (click)="askDelete(row)" title="Supprimer"
+                  class="p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading() && totalPages() > 1"
+      class="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
+      <span class="text-xs text-slate-500">
+        {{ rows().length }} élément(s) — page {{ currentPage() }} / {{ totalPages() }}
+      </span>
+      <div class="flex items-center gap-2">
+        <button (click)="prevPage()" [disabled]="currentPage() === 1"
+          class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-white">Précédent</button>
+        <button (click)="nextPage()" [disabled]="currentPage() >= totalPages()"
+          class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-white">Suivant</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Modal formulaire ===================== -->
+<div *ngIf="showModal()" class="fixed inset-0 z-[60] flex justify-end bg-slate-900/40" (click)="closeModal()">
+  <div class="bg-white shadow-2xl w-full max-w-md h-full overflow-y-auto rounded-l-2xl drawer-anim ml-auto" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h2 class="text-lg font-semibold text-slate-800">
+        {{ editingId() ? 'Modifier' : 'Ajouter' }} —
+        {{ activeTab() === 'documents' ? 'Type de document'
+           : activeTab() === 'projets' ? 'Type de projet'
+           : activeTab() === 'mediacats' ? 'Catégorie de média'
+           : "Catégorie d'article" }}
+      </h2>
+      <button (click)="closeModal()" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="px-5 py-4 space-y-4">
+      <!-- Catégories d'article -->
+      <ng-container *ngIf="isArticles()">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Code <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="form.code" placeholder="Ex. ACTUALITE"
+            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg uppercase focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+          <p class="text-xs text-slate-400 mt-1">Identifiant stable (sans espaces). Modifier un code existant peut affecter les filtres du site public.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Libellé <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="form.label" placeholder="Ex. Actualité"
+            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Ordre d'affichage</label>
+          <input type="number" [(ngModel)]="form.displayOrder" min="0"
+            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+      </ng-container>
+
+      <!-- Catégories de média -->
+      <ng-container *ngIf="isMediaCats()">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Libellé <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="form.label" placeholder="Ex. Podcast, Événement, Institution…"
+            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+          <p class="text-xs text-slate-400 mt-1">Renommer une catégorie met à jour automatiquement les médias qui l'utilisent.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Ordre d'affichage</label>
+          <input type="number" [(ngModel)]="form.displayOrder" min="0"
+            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+      </ng-container>
+
+      <!-- Types document / projet -->
+      <ng-container *ngIf="!isArticles() && !isMediaCats()">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nom <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="form.name" placeholder="Nom"
+            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+      </ng-container>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">
+          Description <span *ngIf="!isArticles() && !isMediaCats()" class="text-red-500">*</span>
+        </label>
+        <textarea [(ngModel)]="form.description" rows="3" placeholder="Description"
+          class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none resize-y"></textarea>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2 px-5 py-4 border-t border-slate-100">
+      <button (click)="closeModal()" class="px-4 py-2 text-sm border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50">Annuler</button>
+      <button (click)="save()" [disabled]="!formValid() || saving()"
+        class="px-4 py-2 text-sm bg-[#00843B] text-white rounded-lg hover:bg-[#006e31] disabled:opacity-50">
+        {{ saving() ? 'Enregistrement' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Confirmation suppression ===================== -->
+<div *ngIf="confirmModal().show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" (click)="closeConfirm()">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5" (click)="$event.stopPropagation()">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="font-semibold text-slate-800">Confirmer la suppression</h3>
+        <p class="text-sm text-slate-500 mt-1">{{ confirmModal().message }}</p>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-5">
+      <button (click)="closeConfirm()" class="px-4 py-2 text-sm border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50">Annuler</button>
+      <button (click)="confirmModal().onConfirm()" class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Toast ===================== -->
+<div *ngIf="notification().show"
+  class="fixed bottom-5 right-5 z-[60] px-4 py-3 rounded-lg shadow-lg text-sm text-white flex items-center gap-2"
+  [ngClass]="{
+    'bg-[#00843B]': notification().type === 'success',
+    'bg-red-600': notification().type === 'error',
+    'bg-slate-700': notification().type === 'info'
+  }">
+  {{ notification().message }}
+</div>

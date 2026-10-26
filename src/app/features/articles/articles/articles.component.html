@@ -1,0 +1,140 @@
+<!-- ===================== Bannière ===================== -->
+<div class="relative overflow-hidden bg-gradient-to-r from-[#00843B] to-[#006B30] py-16">
+  <div class="absolute inset-0 opacity-10 pointer-events-none"
+       style="  background-size: 28px 28px;"></div>
+  <div class="absolute -top-16 -right-10 w-80 h-80 bg-[#FCD116]/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="container mx-auto px-4 relative">
+    <nav class="text-green-100 text-sm mb-3 animate-fade-in">
+      <a routerLink="/" class="hover:text-white transition-colors">Accueil</a>
+      <span class="mx-2">›</span>
+      <span class="text-white">Actualités</span>
+    </nav>
+    <div class="flex items-center gap-4 animate-fade-in-up">
+      <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center flex-shrink-0">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+      </div>
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-display font-bold text-white">Actualités</h1>
+        <p class="text-green-100 text-sm mt-1 max-w-2xl">Toutes les actualités, communiqués et événements du Ministère de la Transition Digitale.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="py-12 bg-gray-50 min-h-[60vh]">
+  <div class="container mx-auto px-4 max-w-6xl">
+
+    <!-- Recherche -->
+    <div class="relative mb-6">
+      <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="search()"
+             placeholder="Rechercher un article, un communiqué…"
+             class="w-full pl-11 pr-32 py-3 text-sm bg-white border border-slate-300 rounded-2xl shadow-soft focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none transition-colors"/>
+      <button (click)="search()"
+              class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 bg-[#00843B] hover:bg-[#006830] text-white text-sm font-medium rounded-xl transition-colors">
+        Rechercher
+      </button>
+    </div>
+
+    <!-- ===================== Skeletons ===================== -->
+    @if (loading()) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="h-48 bg-slate-200 animate-pulse"></div>
+            <div class="p-5 space-y-3">
+              <div class="h-4 w-1/3 bg-slate-200 rounded animate-pulse"></div>
+              <div class="h-5 w-3/4 bg-slate-200 rounded animate-pulse"></div>
+              <div class="h-4 w-full bg-slate-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (articles().length === 0) {
+      <!-- ===================== État vide ===================== -->
+      <div class="text-center py-20 bg-white rounded-2xl border border-slate-200">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+          <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+        </div>
+        <h3 class="text-lg font-medium text-slate-700 mb-1">Aucun article trouvé</h3>
+        <p class="text-slate-400 text-sm">Essayez de modifier vos critères de recherche.</p>
+      </div>
+    } @else {
+      <!-- Compteur -->
+      <p class="text-sm text-slate-500 mb-4">
+        <span class="font-semibold text-slate-700">{{ articles().length }}</span> article(s) affiché(s)
+      </p>
+
+      <!-- ===================== Grille d'articles ===================== -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (article of articles(); track article.id) {
+          <a [routerLink]="['/actualites', article.id]"
+             class="group flex flex-col bg-white rounded-2xl border border-slate-200 shadow-soft hover:shadow-soft-lg hover:-translate-y-0.5 transition-all overflow-hidden animate-fade-in">
+
+            <!-- Image -->
+            <div class="relative h-48 bg-[#E6F5EB] overflow-hidden">
+              @if (article.featuredImage) {
+                <img loading="lazy" [src]="getImageUrl(article.featuredImage)" [alt]="article.title"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+              } @else {
+                <div class="w-full h-full flex items-center justify-center">
+                  <svg class="w-14 h-14 text-[#00843B]/40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                </div>
+              }
+              <!-- Badge catégorie -->
+              <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/90 backdrop-blur text-[#00843B] shadow-sm">
+                {{ getCategoryLabel(article.category) }}
+              </span>
+            </div>
+
+            <!-- Contenu -->
+            <div class="flex flex-col flex-1 p-5">
+              <div class="flex items-center gap-3 text-xs text-slate-400 mb-2">
+                <span class="inline-flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  {{ formatDate(article.publishedAt || article.createdAt) }}
+                </span>
+                <span class="inline-flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  {{ article.viewCount }}
+                </span>
+              </div>
+
+              <h3 class="text-lg font-display font-semibold text-slate-900 leading-snug group-hover:text-[#00843B] transition-colors line-clamp-2">
+                {{ article.title }}
+              </h3>
+
+              <p class="text-slate-500 text-sm leading-relaxed mt-2 line-clamp-3 flex-1">{{ article.summary | stripHtml }}</p>
+
+              <span class="inline-flex items-center gap-1 text-sm font-medium text-[#00843B] mt-4">
+                Lire l'article
+                <svg class="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+              </span>
+            </div>
+          </a>
+        }
+      </div>
+
+      <!-- ===================== Pagination ===================== -->
+      @if (totalPages() > 1) {
+        <div class="flex items-center justify-center gap-1.5 mt-10">
+          <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 0"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          @for (page of getPageNumbers(); track page) {
+            <button (click)="goToPage(page)"
+              [class]="page === currentPage() ? 'w-9 h-9 flex items-center justify-center rounded-lg bg-[#00843B] text-white text-sm font-medium'
+                                              : 'w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-slate-300 text-slate-600 text-sm hover:bg-slate-50 transition-colors'">
+              {{ page + 1 }}
+            </button>
+          }
+          <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages() - 1"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      }
+    }
+  </div>
+</section>

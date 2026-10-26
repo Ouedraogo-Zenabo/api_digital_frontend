@@ -1,0 +1,204 @@
+ <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-neutral-900">Utilisateurs</h1>
+          <p class="text-neutral-500">Gérez les comptes utilisateurs</p>
+        </div>
+        <button (click)="openModal()" class="btn-primary" style="background-color: #00843B;">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Nouvel utilisateur
+        </button>
+      </div>
+      
+      <app-data-table [columns]="columns" [rows]="users()" [loading]="loading()"
+                      [rowActions]="actionsTpl" searchPlaceholder="Rechercher un utilisateur"
+                      emptyText="Aucun utilisateur"
+                      emptyHint="Cliquez sur « Nouvel utilisateur » pour en créer un.">
+      </app-data-table>
+
+      <ng-template #actionsTpl let-user>
+        <div class="flex justify-end gap-2">
+          <button (click)="editUser(user)" title="Modifier"
+            class="flex items-center justify-center p-2 border-2 rounded-full bg-white hover:bg-green-50 transition-colors" style="border-color: #00843B;">
+            <svg class="w-4 h-4" fill="none" stroke="#00843B" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+          </button>
+
+          <button (click)="toggleUserStatus(user)" [title]="user.enabled ? 'Désactiver' : 'Activer'"
+            class="flex items-center justify-center p-2 border-2 rounded-full bg-white transition-colors"
+            [ngClass]="user.enabled ? 'border-secondary-500 hover:bg-secondary-50' : 'border-green-500 hover:bg-green-50'">
+            @if (user.enabled) {
+              <svg class="w-4 h-4 text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+              </svg>
+            } @else {
+              <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            }
+          </button>
+
+          <button (click)="openResetPassword(user)" title="Réinitialiser le mot de passe"
+            class="flex items-center justify-center p-2 border-2 border-amber-500 rounded-full bg-white hover:bg-amber-50 transition-colors">
+            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+          </button>
+
+          <button (click)="deleteUser(user)" title="Supprimer"
+            class="flex items-center justify-center p-2 border-2 border-red-500 rounded-full bg-white hover:bg-red-50 transition-colors">
+            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+        </div>
+      </ng-template>
+      
+      @if (showModal()) {
+        <div class="fixed inset-0 bg-slate-900/40 flex justify-end z-[60]">
+          <div class="bg-white shadow-2xl w-full max-w-2xl h-full overflow-y-auto rounded-l-2xl drawer-anim ml-auto">
+            <div class="p-6 border-b border-neutral-200">
+              <h2 class="text-xl font-semibold text-neutral-900">{{ editingUser() ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }} </h2>
+            </div>
+            <form (ngSubmit)="saveUser()" class="p-6 space-y-5">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="label">Prénom <span class="text-danger-500">*</span></label>
+                  <input type="text" [(ngModel)]="form.firstName" name="firstName" class="input" required>
+                </div>
+                <div>
+                  <label class="label">Nom <span class="text-danger-500">*</span></label>
+                  <input type="text" [(ngModel)]="form.lastName" name="lastName" class="input" required>
+                </div>
+              </div>
+              <div>
+                <label class="label">Nom d'utilisateur <span class="text-danger-500">*</span></label>
+                <input type="text" [(ngModel)]="form.username" name="username" class="input" required [disabled]="!!editingUser()">
+              </div>
+              <div>
+                <label class="label">Email <span class="text-danger-500">*</span></label>
+                <input type="email" [(ngModel)]="form.email" name="email" class="input" required>
+              </div>
+              @if (!editingUser()) {
+                <div>
+                  <label class="label">Mot de passe <span class="text-danger-500">*</span></label>
+                  <input type="password" [(ngModel)]="form.password" name="password" class="input" required>
+                </div>
+              }
+              <div>
+                <label class="label">Rôle <span class="text-danger-500">*</span></label>
+                <select [(ngModel)]="form.role" name="role" class="input">
+                  <option value="ROLE_USER">Utilisateur</option>
+                  <option value="ROLE_MODERATOR">Modérateur</option>
+                  <option value="ROLE_ADMIN">Administrateur</option>
+                </select>
+              </div>
+              <div class="flex justify-end gap-3 pt-4 border-t border-neutral-200">
+                <button type="button" (click)="closeModal()" class="px-4 py-2 rounded-lg border border-red-500 text-red-500 hover:bg-red-50 transition-colors font-medium">Annuler</button>
+                <button type="submit" [disabled]="saving()" class="btn-primary">
+                  @if (saving()) { <div class="spinner w-4 h-4 mr-2"></div> }
+                  {{ editingUser() ? 'Mettre à jour' : 'Créer' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+    </div>
+
+
+
+            <!-- Notification Modal -->
+@if(notification().show) {
+  <div class="fixed top-4 right-4 z-50 pointer-events-none">
+    <div
+      [ngClass]="{
+        'bg-green-50 border-green-500 text-green-700': notification().type === 'success',
+        'bg-red-50 border-red-500 text-red-700': notification().type === 'error',
+        'bg-blue-50 border-blue-500 text-blue-700': notification().type === 'info'
+      }"
+      class="pointer-events-auto border-l-4 rounded-lg shadow-lg p-6 max-w-sm w-full flex items-center gap-4 animate-fade-in"
+    >
+      <svg *ngIf="notification().type === 'success'" class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <svg *ngIf="notification().type === 'error'" class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      <svg *ngIf="notification().type === 'info'" class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
+      </svg>
+      <span class="text-sm font-medium">{{ notification().message }}</span>
+    </div>
+  </div>
+}
+
+
+
+<!-- Modal réinitialisation mot de passe (admin) -->
+@if(resetModal().show) {
+  <div class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4" (click)="closeResetPassword()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4" (click)="$event.stopPropagation()">
+      <h3 class="text-lg font-semibold text-neutral-900">
+        Réinitialiser le mot de passe
+      </h3>
+      <p class="text-sm text-neutral-500">
+        Définir un nouveau mot de passe pour
+        <span class="font-medium text-neutral-700">{{ resetModal().user?.username }}</span>.
+        L'utilisateur n'a pas besoin de son ancien mot de passe.
+      </p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nouveau mot de passe</label>
+          <input [type]="showResetPwd() ? 'text' : 'password'" [(ngModel)]="resetForm.newPassword"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Confirmer</label>
+          <input [type]="showResetPwd() ? 'text' : 'password'" [(ngModel)]="resetForm.confirm"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        </div>
+        <label class="flex items-center gap-2 text-sm text-slate-600">
+          <input type="checkbox" [ngModel]="showResetPwd()" (ngModelChange)="showResetPwd.set($event)"/>
+          Afficher
+        </label>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-4">
+        <button (click)="closeResetPassword()"
+                class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
+          Annuler
+        </button>
+        <button (click)="submitResetPassword()" [disabled]="resettingPwd()"
+                class="px-4 py-2 rounded-lg bg-[#00843B] text-white hover:bg-[#006e31] transition-colors font-medium disabled:opacity-50">
+          {{ resettingPwd() ? 'Réinitialisation' : 'Réinitialiser' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de confirmation -->
+@if(confirmModal().show) {
+  <div class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4">
+      <h3 class="text-lg font-semibold text-neutral-900">Confirmation</h3>
+      <p class="text-neutral-700">{{ confirmModal().message }}</p>
+      
+      <div class="flex justify-end gap-3 mt-4">
+        <button (click)="closeConfirmModal()" 
+                class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
+          Annuler
+        </button>
+        <button (click)="confirmModal().onConfirm()" 
+                class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors font-medium">
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}

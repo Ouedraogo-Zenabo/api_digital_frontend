@@ -1,0 +1,509 @@
+<!-- ===================== Bannière ===================== -->
+<div class="relative overflow-hidden bg-gradient-to-r from-[#00843B] to-[#006B30] py-16">
+  <div class="absolute inset-0 opacity-10 pointer-events-none"
+       style="background-size: 28px 28px;"></div>
+  <div class="absolute -top-16 -right-10 w-80 h-80 bg-[#FCD116]/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="container mx-auto px-4 relative">
+    <nav class="text-green-100 text-sm mb-3 animate-fade-in">
+      <a routerLink="/" class="hover:text-white transition-colors">Accueil</a>
+      <span class="mx-2">›</span>
+      <span class="text-white">Médiathèque</span>
+    </nav>
+    <div class="flex items-center gap-4 animate-fade-in-up">
+      <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center flex-shrink-0">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      </div>
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-display font-bold text-white">Médiathèque</h1>
+        <p class="text-green-100 text-sm mt-1">Photos, vidéos et documents officiels du ministère.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Barre d'onglets (sticky) ===================== -->
+<div class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
+      <button *ngFor="let t of tabs" (click)="selectTab(t.key)"
+        class="relative flex items-center gap-2 px-4 sm:px-5 py-4 text-sm font-medium whitespace-nowrap transition-colors"
+        [ngClass]="activeTab() === t.key ? 'text-[#00843B]' : 'text-slate-500'">
+        <!-- icônes -->
+        <svg *ngIf="t.icon==='photo'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16v12H4z"/></svg>
+        <svg *ngIf="t.icon==='video'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <svg *ngIf="t.icon==='doc'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <svg *ngIf="t.icon==='audio'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <svg *ngIf="t.icon==='album'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h3l2 2h7a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/></svg>
+        {{ t.label }}
+        <span class="text-xs px-1.5 py-0.5 rounded-full"
+              [ngClass]="activeTab() === t.key ? 'bg-[#e7f6ee] text-[#00843B]' : 'bg-slate-100 text-slate-400'">{{ count(t.key) }}</span>
+        <span class="absolute left-0 right-0 -bottom-px h-0.5 rounded-full bg-[#00843B] transition-transform origin-left"
+              [class.scale-x-100]="activeTab() === t.key" [class.scale-x-0]="activeTab() !== t.key"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<section class="py-8 bg-gray-50 min-h-[60vh]">
+  <div class="container mx-auto px-4 max-w-6xl">
+
+    <!-- ===================== Barre d'outils ===================== -->
+    <div class="flex flex-col lg:flex-row lg:items-center gap-3 mb-5">
+      <!-- Recherche -->
+      <div class="relative flex-1">
+        <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input [ngModel]="search()" (ngModelChange)="onSearch($event)" name="q"
+               [placeholder]="'Rechercher dans les ' + tabNoun() + '…'"
+               class="w-full pl-11 pr-4 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none transition-colors"/>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Lecture automatique (vidéos / audio) -->
+        <button *ngIf="activeTab()==='video' || activeTab()==='audio'" type="button"
+                (click)="autoplay.set(!autoplay())" role="switch" [attr.aria-checked]="autoplay()"
+                class="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-xl border transition-colors"
+                [ngClass]="autoplay() ? 'bg-[#e7f6ee] border-[#00843B]/30 text-[#00843B]' : 'bg-white border-slate-300 text-slate-500 hover:text-slate-700'">
+          <span class="relative w-8 h-4 rounded-full transition-colors" [ngClass]="autoplay() ? 'bg-[#00843B]' : 'bg-slate-300'">
+            <span class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform" [class.translate-x-4]="autoplay()"></span>
+          </span>
+          Lecture auto
+        </button>
+
+        <!-- Tri -->
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-slate-500 hidden sm:block">Trier&nbsp;:</label>
+          <select [ngModel]="sort()" (ngModelChange)="onSortChange($event)" name="sort"
+                  class="px-3 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none">
+            <option value="recent">Plus récents</option>
+            <option value="ancien">Plus anciens</option>
+            <option value="titre">Titre (A→Z)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import YouTube (onglet Vidéos) -->
+    <!-- <div *ngIf="activeTab() === 'video'" class="mb-5 bg-white border border-slate-200 rounded-2xl shadow-soft p-4 sm:p-5 animate-fade-in">
+      <div class="flex items-center gap-2 mb-3">
+        <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+        <h3 class="font-display font-semibold text-slate-800 text-sm">Charger une vidéo depuis YouTube</h3>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <input [ngModel]="ytInput()" (ngModelChange)="ytInput.set($event)" name="yt"
+               placeholder="Collez un lien YouTube (https://youtu.be/…) ou un ID"
+               class="flex-1 px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+        <button (click)="previewYoutube()"
+                class="px-4 py-2.5 text-sm font-medium rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">Prévisualiser</button>
+        <button (click)="addYoutube()" [disabled]="!ytPreviewId()"
+                class="px-4 py-2.5 text-sm font-medium rounded-xl bg-[#00843B] text-white hover:bg-[#006e31] transition-colors disabled:opacity-50">Ajouter</button>
+      </div>
+      <p *ngIf="ytError()" class="mt-2 text-xs text-red-500">{{ ytError() }}</p>
+      <div *ngIf="ytPreviewId()" class="mt-3 aspect-video w-full sm:max-w-md rounded-xl overflow-hidden border border-slate-200 animate-scale-in">
+        <iframe [src]="ytPreviewEmbed()" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div> -->
+
+    <!-- Filtres par catégorie -->
+    <div *ngIf="!loading() && categories().length" class="flex flex-wrap items-center gap-2 mb-5">
+      <button (click)="selectCategory('')"
+        class="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors"
+        [ngClass]="!activeCategory() ? 'bg-[#00843B] text-white border-[#00843B]' : 'bg-white text-slate-600 border-slate-300'">
+        Tout
+      </button>
+      <button *ngFor="let c of categories()" (click)="selectCategory(c)"
+        class="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors"
+        [ngClass]="activeCategory()===c ? 'bg-[#00843B] text-white border-[#00843B]' : 'bg-white text-slate-600 border-slate-300'">
+        {{ c }}
+      </button>
+    </div>
+
+    <!-- Compteur de résultats -->
+    <p *ngIf="!loading()" class="text-sm text-slate-500 mb-4">
+      <span class="font-semibold text-slate-700">{{ totalResults() }}</span> résultat(s)
+      <span *ngIf="search() || activeCategory()"> · <button (click)="onSearch(''); activeCategory.set(''); page.set(0)" class="text-[#00843B] hover:underline">réinitialiser</button></span>
+    </p>
+
+    <!-- ===================== Skeletons ===================== -->
+    <div *ngIf="loading()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div *ngFor="let s of [1,2,3,4,5,6,7,8]" class="rounded-2xl bg-white border border-slate-200 overflow-hidden">
+        <div class="aspect-[4/3] shimmer"></div>
+        <div class="p-3 space-y-2">
+          <div class="h-3 w-3/4 rounded shimmer"></div>
+          <div class="h-3 w-1/2 rounded shimmer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== État vide ===================== -->
+    <div *ngIf="!loading() && totalResults() === 0" class="text-center py-20">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+        <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <p class="text-slate-500">Aucun média ne correspond à votre recherche.</p>
+    </div>
+
+    <!-- ===================== ALBUMS ===================== -->
+    <div *ngIf="!loading() && activeTab()==='album' && totalResults()>0"
+         class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
+      <figure *ngFor="let a of filteredAlbums(); trackBy: trackById"
+        (click)="openAlbum(a)"
+        (mouseenter)="onAlbumEnter(a.id)" (mouseleave)="onAlbumLeave()"
+        class="group relative rounded-2xl overflow-hidden bg-slate-800 cursor-pointer shadow-soft hover:shadow-soft-lg transition-all animate-fade-in aspect-[4/3]">
+        <img *ngIf="albumCardImg(a)" [src]="albumCardImg(a)" [alt]="a.name"
+             class="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.03]"/>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
+
+        <!-- Badge nombre + pictogramme lecture au survol -->
+        <span class="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/55 text-white">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h3l2 2h7a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/></svg>
+          {{ a.mediaCount ?? 0 }}
+        </span>
+        <span class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 text-[#00843B] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </span>
+
+        <!-- Petits points de progression du diaporama (au survol) -->
+        <div *ngIf="hoverAlbumId() === a.id && (a.previewImages?.length ?? 0) > 1"
+             class="absolute bottom-16 inset-x-0 flex justify-center gap-1">
+          <span *ngFor="let img of a.previewImages; let i = index"
+                class="h-1 rounded-full transition-all"
+                [ngClass]="i === (albumHoverTick() % (a.previewImages?.length ?? 1)) ? 'w-4 bg-white' : 'w-1 bg-white/50'"></span>
+        </div>
+
+        <figcaption class="absolute bottom-0 inset-x-0 p-3 sm:p-4">
+          <span *ngIf="a.category" class="inline-block text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#FCD116] text-slate-900 font-semibold mb-1.5">{{ a.category }}</span>
+          <p class="text-white font-semibold leading-snug line-clamp-2 text-base sm:text-lg">{{ a.name }}</p>
+          <p *ngIf="a.description" class="text-white/70 text-xs mt-1 line-clamp-1 hidden sm:block">{{ a.description }}</p>
+        </figcaption>
+      </figure>
+    </div>
+
+    <!-- ===================== PHOTOS (bento grid) ===================== -->
+    <div *ngIf="!loading() && activeTab()==='photo' && totalResults()>0"
+         class="grid grid-cols-2 lg:grid-cols-4 auto-rows-[170px] sm:auto-rows-[180px] grid-flow-dense gap-3 sm:gap-4">
+      @for (p of paged(); track p.id; let i = $index) {
+
+        @if (i === 0 && heroPhotos().length > 1) {
+          <!-- Grande tuile : diaporama automatique des photos -->
+          <figure [ngClass]="bento(0)"
+            (click)="openLightbox(heroPhoto()!)"
+            (mouseenter)="heroPaused.set(true)" (mouseleave)="heroPaused.set(false)"
+            class="group relative rounded-2xl overflow-hidden bg-slate-800 cursor-pointer shadow-soft hover:shadow-soft-lg transition-all animate-fade-in">
+            @for (hp of heroPhotos(); track hp.id; let hi = $index) {
+              <img [src]="thumbOf(hp)" [alt]="hp.title"
+                   class="absolute inset-0 w-full h-full object-cover transition-opacity duration-[900ms] ease-in-out"
+                   [class.opacity-100]="hi === heroIndex()" [class.opacity-0]="hi !== heroIndex()"/>
+            }
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <span class="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wide px-2 py-1 rounded-full bg-black/50 text-white font-semibold">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+              Diaporama
+            </span>
+            <div class="absolute top-3 right-3 flex gap-1.5">
+              @for (hp of heroPhotos(); track $index; let hi = $index) {
+                <button type="button" (click)="$event.stopPropagation(); heroIndex.set(hi)"
+                        [attr.aria-label]="'Photo ' + (hi + 1)"
+                        class="h-1.5 rounded-full transition-all"
+                        [ngClass]="hi === heroIndex() ? 'w-5 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'"></button>
+              }
+            </div>
+            <figcaption class="absolute bottom-0 inset-x-0 p-3 sm:p-4">
+              <span class="inline-block text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#FCD116] text-slate-900 font-semibold mb-1.5">{{ heroPhoto()?.category }}</span>
+              <p class="text-white font-medium leading-snug line-clamp-2 text-base sm:text-lg">{{ heroPhoto()?.title }}</p>
+              <p *ngIf="heroPhoto()?.description" class="text-white/70 text-xs mt-1 line-clamp-2 hidden sm:block">{{ heroPhoto()?.description }}</p>
+            </figcaption>
+          </figure>
+
+        } @else {
+          <figure (click)="openLightbox(p)"
+            [ngClass]="bento(i)"
+            class="group relative rounded-2xl overflow-hidden bg-slate-200 cursor-pointer shadow-soft hover:shadow-soft-lg transition-all animate-fade-in">
+            <img [src]="thumbOf(p)" [alt]="p.title" loading="lazy"
+                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <span class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 text-slate-700 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </span>
+            <figcaption class="absolute bottom-0 inset-x-0 p-3 sm:p-4">
+              <span class="inline-block text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#FCD116] text-slate-900 font-semibold mb-1.5">{{ p.category }}</span>
+              <p class="text-white font-medium leading-snug line-clamp-2"
+                 [ngClass]="bento(i).includes('row-span-2') ? 'text-base sm:text-lg' : 'text-sm'">{{ p.title }}</p>
+              <p *ngIf="p.description" class="text-white/70 text-xs mt-1 line-clamp-2 hidden sm:block">{{ p.description }}</p>
+            </figcaption>
+          </figure>
+        }
+      }
+    </div>
+
+    <!-- ===================== VIDÉOS (bento grid) ===================== -->
+    <div *ngIf="!loading() && activeTab()==='video' && totalResults()>0"
+         class="grid grid-cols-2 lg:grid-cols-4 auto-rows-[170px] sm:auto-rows-[180px] grid-flow-dense gap-3 sm:gap-4">
+      <article *ngFor="let v of paged(); let i = index; trackBy: trackById" (click)="openVideo(v)"
+        [ngClass]="bento(i)"
+        class="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 cursor-pointer shadow-soft hover:shadow-soft-lg transition-all animate-fade-in">
+        <img *ngIf="thumbOf(v)" [src]="thumbOf(v)" [alt]="v.title" loading="lazy"
+             class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"/>
+        <!-- Voile permanent bas + assombrissement hover -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/10 group-hover:from-black/85 transition-colors"></div>
+
+        <!-- Bouton lecture -->
+        <span class="absolute inset-0 flex items-center justify-center">
+          <span class="rounded-full bg-white/90 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110"
+                [ngClass]="bento(i).includes('row-span-2') ? 'w-16 h-16' : 'w-12 h-12'">
+            <svg class="text-[#00843B] ml-0.5" [ngClass]="bento(i).includes('row-span-2') ? 'w-7 h-7' : 'w-5 h-5'" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+        </span>
+
+        <!-- Durée -->
+        <span *ngIf="v.duration" class="absolute top-2 right-2 text-[11px] font-medium px-1.5 py-0.5 rounded bg-black/75 text-white">{{ v.duration }}</span>
+        <!-- Source -->
+        <span class="absolute top-2 left-2 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              [ngClass]="v.source==='youtube' ? 'bg-red-600 text-white' : 'bg-white/90 text-slate-700'">
+          <svg *ngIf="v.source==='youtube'" class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+          {{ v.source==='youtube' ? 'YouTube' : 'Plateforme' }}
+        </span>
+
+        <!-- Légende toujours visible -->
+        <figcaption class="absolute bottom-0 inset-x-0 p-3 sm:p-4">
+          <span class="inline-block text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#FCD116] text-slate-900 font-semibold mb-1.5">{{ v.category }}</span>
+          <p class="text-white font-medium leading-snug line-clamp-2"
+             [ngClass]="bento(i).includes('row-span-2') ? 'text-base sm:text-lg' : 'text-sm'">{{ v.title }}</p>
+          <div class="flex items-center gap-3 text-[11px] text-white/70 mt-1">
+            <span>{{ v.date | date:'dd MMM yyyy' }}</span>
+            <span *ngIf="v.views" class="inline-flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              {{ formatViews(v.views) }}
+            </span>
+          </div>
+        </figcaption>
+      </article>
+    </div>
+
+    <!-- ===================== AUDIO / PODCASTS ===================== -->
+    <div *ngIf="!loading() && activeTab()==='audio' && totalResults()>0" class="grid sm:grid-cols-2 gap-4">
+      <article *ngFor="let a of paged(); trackBy: trackById"
+        class="flex flex-col gap-3 p-4 rounded-2xl bg-white border border-slate-200 shadow-soft hover:shadow-soft-lg transition-all animate-fade-in">
+        <div class="flex gap-4">
+          <div class="w-16 h-16 rounded-xl flex-shrink-0 overflow-hidden bg-[#e7f6ee] flex items-center justify-center">
+            <img *ngIf="a.thumbnail" [src]="a.thumbnail" [alt]="a.title" loading="lazy" class="w-full h-full object-cover">
+            <svg *ngIf="!a.thumbnail" class="w-7 h-7 text-[#00843B]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <span class="text-[10px] uppercase tracking-wide text-[#00843B] font-semibold">{{ a.category }}</span>
+            <h3 class="text-sm font-medium text-slate-800 mt-0.5 line-clamp-2">{{ a.title }}</h3>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 mt-1.5">
+              <span>{{ a.date | date:'dd MMM yyyy' }}</span>
+              <span *ngIf="a.duration">· {{ a.duration }}</span>
+              <span *ngIf="a.author" class="truncate">· {{ a.author }}</span>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="a.description" class="text-xs text-slate-500 line-clamp-2" [innerHTML]="a.description"></p>
+        <audio *ngIf="a.url" controls preload="none" [src]="a.url" class="w-full"
+               (play)="onAudioPlay($event.target)" (ended)="onAudioEnded($event.target)"></audio>
+        <a *ngIf="a.url" [href]="a.url" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-1.5 self-start px-3 py-1.5 text-xs font-medium rounded-lg bg-[#e7f6ee] text-[#00843B] hover:bg-[#d3efe0] transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Télécharger
+        </a>
+      </article>
+    </div>
+
+    <!-- ===================== DOCUMENTS ===================== -->
+    <div *ngIf="!loading() && activeTab()==='document' && totalResults()>0" class="grid sm:grid-cols-2 gap-4">
+      <article *ngFor="let d of paged(); trackBy: trackById"
+        class="group flex gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-soft hover:shadow-soft-lg transition-all animate-fade-in">
+        <div class="w-14 h-16 rounded-xl flex flex-col items-center justify-center flex-shrink-0" [ngClass]="docColor(d.fileType)">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span class="text-[10px] font-bold mt-0.5">{{ d.fileType }}</span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <span class="text-[10px] uppercase tracking-wide text-[#00843B] font-semibold">{{ d.category }}</span>
+          <h3 class="text-sm font-medium text-slate-800 mt-0.5 line-clamp-2">{{ d.title }}</h3>
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 mt-1.5">
+            <span>{{ d.date | date:'dd MMM yyyy' }}</span>
+            <span *ngIf="d.fileType">· {{ d.fileType }}</span>
+            <span *ngIf="d.fileSize">· {{ d.fileSize }}</span>
+            <span *ngIf="d.pages">· {{ d.pages }} pages</span>
+          </div>
+          <div class="flex items-center gap-2 mt-3">
+            <button (click)="openDoc(d)"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              Aperçu
+            </button>
+            <a [href]="d.url" target="_blank" rel="noopener"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-[#e7f6ee] text-[#00843B] hover:bg-[#d3efe0] transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Télécharger
+            </a>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- ===================== Pagination ===================== -->
+    <div *ngIf="!loading() && totalPages() > 1" class="flex items-center justify-center gap-1.5 mt-10">
+      <button (click)="goToPage(page()-1)" [disabled]="page()===0"
+        class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <ng-container *ngFor="let n of pageNumbers()">
+        <span *ngIf="n==='…'" class="w-9 h-9 flex items-center justify-center text-slate-400">…</span>
+        <button *ngIf="n!=='…'" (click)="goToPage(+n)"
+          class="w-9 h-9 flex items-center justify-center rounded-lg border text-sm font-medium transition-colors"
+          [ngClass]="page()===n ? 'bg-[#00843B] text-white border-[#00843B]' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'">
+          {{ +n + 1 }}
+        </button>
+      </ng-container>
+      <button (click)="goToPage(page()+1)" [disabled]="page()===totalPages()-1"
+        class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================== Lightbox PHOTO ===================== -->
+<div *ngIf="lightboxItem() as ph" (click)="closeLightbox()"
+  class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in">
+  <button (click)="closeLightbox()" class="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+  </button>
+  <button (click)="$event.stopPropagation(); prevPhoto()" class="absolute left-3 sm:left-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  </button>
+  <button (click)="$event.stopPropagation(); nextPhoto()" class="absolute right-3 sm:right-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+  </button>
+  <figure (click)="$event.stopPropagation()" class="max-w-5xl w-full animate-scale-in">
+    <img loading="lazy" [src]="ph.url || ph.thumbnail" [alt]="ph.title" class="w-full max-h-[78vh] object-contain rounded-xl"/>
+    <figcaption class="mt-3 text-center">
+      <p class="text-white font-medium">{{ ph.title }}</p>
+      <p class="text-white/50 text-sm mt-0.5">{{ ph.category }} · {{ ph.date | date:'dd MMMM yyyy' }}<span *ngIf="ph.width"> · {{ ph.width }}×{{ ph.height }} px</span><span *ngIf="ph.fileSize"> · {{ ph.fileSize }}</span></p>
+    </figcaption>
+  </figure>
+</div>
+
+<!-- ===================== Lecteur VIDÉO ===================== -->
+<div *ngIf="activeVideo() as v" (click)="closeVideo()"
+  class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in">
+  <button (click)="closeVideo()" class="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+  </button>
+
+  <!-- Navigation dans la file de lecture -->
+  <button *ngIf="videoQueue().length > 1" (click)="$event.stopPropagation(); prevVideo()" aria-label="Vidéo précédente"
+          class="absolute left-3 sm:left-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  </button>
+  <button *ngIf="videoQueue().length > 1" (click)="$event.stopPropagation(); nextVideo()" aria-label="Vidéo suivante"
+          class="absolute right-3 sm:right-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+  </button>
+
+  <div (click)="$event.stopPropagation()" class="w-full max-w-4xl animate-scale-in">
+    <div class="aspect-video bg-black rounded-xl overflow-hidden">
+      <iframe *ngIf="v.youtubeId" [src]="videoEmbed()" class="w-full h-full" frameborder="0"
+              (load)="onYtLoad($any($event.target))"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <video *ngIf="!v.youtubeId && v.url" [src]="v.url" [poster]="v.thumbnail" controls autoplay
+             (ended)="onVideoEnded()" class="w-full h-full"></video>
+    </div>
+    <div class="mt-3 flex items-start justify-between gap-4">
+      <div class="min-w-0">
+        <p class="text-white font-medium truncate">{{ v.title }}</p>
+        <p class="text-white/50 text-sm mt-0.5">{{ v.category }} · {{ v.date | date:'dd MMMM yyyy' }}<span *ngIf="v.description"> — {{ v.description }}</span></p>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <span *ngIf="videoQueue().length > 1" class="text-white/60 text-xs tabular-nums">{{ videoIndex() + 1 }} / {{ videoQueue().length }}</span>
+        <button type="button" (click)="autoplay.set(!autoplay())" role="switch" [attr.aria-checked]="autoplay()"
+                class="inline-flex items-center gap-1.5 text-xs" [ngClass]="autoplay() ? 'text-[#FCD116]' : 'text-white/50'">
+          <span class="relative w-8 h-4 rounded-full transition-colors" [ngClass]="autoplay() ? 'bg-[#FCD116]' : 'bg-white/25'">
+            <span class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform" [class.translate-x-4]="autoplay()"></span>
+          </span>
+          Lecture auto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Visualiseur ALBUM (diaporama) ===================== -->
+<div *ngIf="activeAlbum() as al" (click)="closeAlbum()"
+  class="fixed inset-0 z-[100] bg-black flex flex-col animate-fade-in">
+
+  <!-- En-tête -->
+  <div (click)="$event.stopPropagation()" class="flex items-center justify-between gap-4 px-4 sm:px-6 py-3 text-white">
+    <div class="min-w-0">
+      <p class="font-semibold truncate">{{ al.name }}</p>
+      <p class="text-white/50 text-xs">
+        {{ (albumSlide() % (albumImages().length || 1)) + 1 }} / {{ albumImages().length }}
+        <span *ngIf="al.category"> · {{ al.category }}</span>
+      </p>
+    </div>
+    <div class="flex items-center gap-3 flex-shrink-0">
+      <button type="button" (click)="autoplay.set(!autoplay())" role="switch" [attr.aria-checked]="autoplay()"
+              class="inline-flex items-center gap-1.5 text-xs" [ngClass]="autoplay() ? 'text-[#FCD116]' : 'text-white/50'">
+        <span class="relative w-8 h-4 rounded-full transition-colors" [ngClass]="autoplay() ? 'bg-[#FCD116]' : 'bg-white/25'">
+          <span class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform" [class.translate-x-4]="autoplay()"></span>
+        </span>
+        Lecture auto
+      </button>
+      <button (click)="closeAlbum()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Scène -->
+  <div (click)="$event.stopPropagation()" class="relative flex-1 min-h-0 flex items-center justify-center px-4 sm:px-16">
+    <button *ngIf="albumImages().length > 1" (click)="prevAlbumSlide()" aria-label="Précédente"
+            class="absolute left-2 sm:left-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    @for (m of albumImages(); track m.id; let i = $index) {
+      <img [src]="m.url || m.thumbnail" [alt]="m.title"
+           class="absolute inset-0 w-full h-full object-contain transition-opacity duration-700"
+           [class.opacity-100]="i === (albumSlide() % albumImages().length)"
+           [class.opacity-0]="i !== (albumSlide() % albumImages().length)"/>
+    }
+    <button *ngIf="albumImages().length > 1" (click)="nextAlbumSlide()" aria-label="Suivante"
+            class="absolute right-2 sm:right-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- Bande de vignettes -->
+  <div (click)="$event.stopPropagation()" class="flex gap-2 overflow-x-auto no-scrollbar px-4 sm:px-6 py-3">
+    @for (m of albumImages(); track m.id; let i = $index) {
+      <button type="button" (click)="albumSlide.set(i)"
+              class="h-14 w-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-colors"
+              [ngClass]="i === (albumSlide() % albumImages().length) ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'">
+        <img [src]="m.thumbnail || m.url" [alt]="m.title" class="w-full h-full object-cover"/>
+      </button>
+    }
+  </div>
+</div>
+
+<!-- ===================== Aperçu DOCUMENT ===================== -->
+<div *ngIf="activeDoc() as d" (click)="closeDoc()"
+  class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 animate-fade-in">
+  <div (click)="$event.stopPropagation()" class="w-full max-w-4xl h-[85vh] bg-white rounded-2xl overflow-hidden flex flex-col animate-scale-in">
+    <div class="flex items-center justify-between gap-4 px-5 py-3 border-b border-slate-200">
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-slate-800 truncate">{{ d.title }}</p>
+        <p class="text-xs text-slate-400">
+          {{ d.fileType }}<span *ngIf="d.fileSize"> · {{ d.fileSize }}</span><span *ngIf="d.pages"> · {{ d.pages }} pages</span>
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <a [href]="d.url" target="_blank" rel="noopener" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-[#00843B] text-white hover:bg-[#006e31] transition-colors">Télécharger</a>
+        <button (click)="closeDoc()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+    <iframe [src]="docPreview()" class="flex-1 w-full bg-slate-100" title="Aperçu du document"></iframe>
+  </div>
+</div>

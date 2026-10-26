@@ -1,0 +1,7 @@
+node_modules
+.angular/
+.angular/cache/
+
+# macOS
+.DS_Store
+**/.DS_Store

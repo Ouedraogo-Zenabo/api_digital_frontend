@@ -1,0 +1,160 @@
+<!-- Bannière -->
+<div class="relative overflow-hidden bg-gradient-to-r from-[#00843B] to-[#006B30] py-14">
+  <div class="absolute inset-0 opacity-10 pointer-events-none"
+       style="  background-size: 28px 28px;"></div>
+  <div class="absolute -top-16 -right-10 w-80 h-80 bg-[#FCD116]/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="container mx-auto px-4 relative">
+    <nav class="text-green-100 text-sm animate-fade-in">
+      <a routerLink="/" class="hover:text-white transition-colors">Accueil</a>
+      <span class="mx-2">›</span>
+      <a routerLink="/evenements" class="hover:text-white transition-colors">Événements</a>
+      <span class="mx-2">›</span>
+      <span class="text-white">Détail</span>
+    </nav>
+  </div>
+</div>
+
+<section class="py-10 bg-gray-50 min-h-[60vh]">
+  <div class="container mx-auto px-4 max-w-6xl">
+
+    <!-- Chargement -->
+    <div *ngIf="loading()" class="flex justify-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00843B]"></div>
+    </div>
+
+    <!-- Introuvable -->
+    <div *ngIf="!loading() && !event()" class="text-center py-20 bg-white rounded-2xl border border-gray-100">
+      <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-700 mb-1">Événement introuvable</h3>
+      <a routerLink="/evenements" class="text-[#00843B] font-medium hover:underline">Retour aux événements</a>
+    </div>
+
+    <div *ngIf="!loading() && event() as ev" class="grid lg:grid-cols-3 gap-8">
+
+      <!-- Colonne principale -->
+      <article class="lg:col-span-2 space-y-6">
+
+        <!-- Carte titre + image -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <img loading="lazy" *ngIf="getImageUrl(ev.imageUrl)" [src]="getImageUrl(ev.imageUrl)" [alt]="ev.title"
+               class="w-full h-64 sm:h-80 object-cover"/>
+          <div class="p-6 sm:p-8">
+            <div class="flex flex-wrap items-center gap-2 mb-4">
+              <span *ngIf="showCountdown(ev)" [ngClass]="countdownClass(ev)" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                {{ countdownLabel(ev) }}
+              </span>
+              <span [class]="getStatusClass(ev.status)" class="px-3 py-1 rounded-full text-xs font-medium">{{ getStatusLabel(ev.status) }}</span>
+              <span *ngIf="ev.isOnline" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">En ligne</span>
+              <span *ngIf="ev.isFree" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Gratuit</span>
+              <span *ngIf="ev.category" class="px-3 py-1 bg-[#e7f6ee] text-[#00843B] rounded-full text-xs font-medium">{{ ev.category }}</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-display font-bold text-slate-900 leading-tight">{{ ev.title }}</h1>
+
+            <!-- Résumé -->
+            <div *ngIf="ev.description" class="content-article text-slate-600 text-lg leading-relaxed mt-4"
+                 [innerHTML]="formatContent(ev.description) | safeHtml"></div>
+          </div>
+        </div>
+
+        <!-- Contenu détaillé -->
+        <div *ngIf="ev.content" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8">
+          <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <span class="w-1.5 h-5 rounded-full bg-[#00843B]"></span> À propos de l'événement
+          </h2>
+          <div class="content-article text-slate-700 leading-relaxed text-justify" [innerHTML]="formatContent(ev.content) | safeHtml"></div>
+        </div>
+
+        <a routerLink="/evenements" class="inline-flex items-center gap-2 text-[#00843B] font-medium hover:underline">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          Retour aux événements
+        </a>
+      </article>
+
+      <!-- Colonne latérale -->
+      <aside class="space-y-6">
+
+        <!-- Infos pratiques -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+          <h2 class="text-base font-bold text-slate-800 mb-4">Informations pratiques</h2>
+          <ul class="space-y-4 text-sm">
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-[#00843B] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <div>
+                <p class="text-slate-400 text-xs">Date</p>
+                <p class="text-slate-700 font-medium">{{ formatDateTime(ev.startDate) }}</p>
+                <p *ngIf="ev.endDate" class="text-slate-500">au {{ formatDateTime(ev.endDate) }}</p>
+              </div>
+            </li>
+            <li *ngIf="ev.location || ev.address" class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-[#00843B] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <div>
+                <p class="text-slate-400 text-xs">Lieu</p>
+                <p class="text-slate-700 font-medium">{{ ev.location }}</p>
+                <p *ngIf="ev.address" class="text-slate-500">{{ ev.address }}</p>
+              </div>
+            </li>
+            <li *ngIf="ev.isOnline && ev.onlineUrl" class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-[#00843B] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              <div>
+                <p class="text-slate-400 text-xs">Participer en ligne</p>
+                <a [href]="ev.onlineUrl" target="_blank" rel="noopener" class="text-[#00843B] font-medium hover:underline break-all">{{ ev.onlineUrl }}</a>
+              </div>
+            </li>
+            <li *ngIf="ev.registrationDeadline" class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-[#00843B] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div>
+                <p class="text-slate-400 text-xs">Clôture des inscriptions</p>
+                <p class="text-slate-700 font-medium">{{ formatDate(ev.registrationDeadline) }}</p>
+              </div>
+            </li>
+            <li *ngIf="ev.maxParticipants" class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-[#00843B] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <div>
+                <p class="text-slate-400 text-xs">Participants</p>
+                <p class="text-slate-700 font-medium">{{ ev.currentParticipants || 0 }} / {{ ev.maxParticipants }} places</p>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-[#00843B] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m4-6h-4m0 0V5m0 4v4"/></svg>
+              <div>
+                <p class="text-slate-400 text-xs">Tarif</p>
+                <p class="text-slate-700 font-medium">{{ ev.isFree ? 'Gratuit' : (ev.price ? (ev.price | number) + ' FCFA' : 'Sur inscription') }}</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Organisateur -->
+        <div *ngIf="ev.organizerName || ev.organizerEmail || ev.organizerPhone"
+             class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+          <h2 class="text-base font-bold text-slate-800 mb-3">Organisateur</h2>
+          <p *ngIf="ev.organizerName" class="text-slate-700 font-medium">{{ ev.organizerName }}</p>
+          <p *ngIf="ev.organizerEmail" class="text-sm mt-1"><a [href]="'mailto:' + ev.organizerEmail" class="text-[#00843B] hover:underline">{{ ev.organizerEmail }}</a></p>
+          <p *ngIf="ev.organizerPhone" class="text-sm text-slate-600 mt-1">{{ ev.organizerPhone }}</p>
+        </div>
+
+        <!-- Prochains événements -->
+        <div *ngIf="upcoming().length" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+          <h2 class="text-base font-bold text-slate-800 mb-4">À venir</h2>
+          <ul class="space-y-4">
+            <li *ngFor="let u of upcoming()">
+              <a *ngIf="u.id !== event()?.id" [routerLink]="['/evenements', u.id]" class="flex gap-3 group">
+                <div class="w-12 flex-shrink-0 rounded-lg bg-[#E30613] text-white flex flex-col items-center justify-center py-1.5">
+                  <span class="text-base font-bold leading-none">{{ getDay(u.startDate) }}</span>
+                  <span class="text-[10px] uppercase">{{ getMonth(u.startDate) }}</span>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-slate-700 group-hover:text-[#00843B] line-clamp-2">{{ u.title }}</p>
+                  <p class="text-xs text-slate-400 truncate">{{ u.location }}</p>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

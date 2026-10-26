@@ -1,0 +1,32 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-neutral-900">Historique des actions</h1>
+    <p class="text-neutral-500">Journal des créations, modifications et suppressions effectuées dans l'administration — du plus récent au plus ancien</p>
+  </div>
+
+  <!-- Bandeau d'information sur l'IP -->
+  <div class="flex items-start gap-3 p-4 rounded-xl bg-blue-50 border border-blue-200 text-sm text-blue-800">
+    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <p>
+      Votre adresse IP publique détectée : <b>{{ audit.ip() }}</b>. Les lectures (GET) ne sont pas journalisées.
+      Pour un audit infalsifiable, l'IP et l'identité doivent être enregistrées côté serveur — ce journal est tenu côté navigateur.
+    </p>
+  </div>
+
+  <!-- Filtre par type d'action -->
+  <div class="inline-flex flex-wrap gap-1 p-1 bg-slate-100 rounded-xl">
+    <button *ngFor="let f of filters" (click)="filter.set(f.key)"
+      class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors"
+      [ngClass]="filter() === f.key ? 'bg-white shadow-sm text-[#00843B]' : 'text-slate-500 hover:text-slate-700'">
+      {{ f.label }}
+      <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full"
+            [ngClass]="filter() === f.key ? 'bg-[#e7f6ee] text-[#00843B]' : 'bg-slate-200 text-slate-500'">{{ count(f.key) }}</span>
+    </button>
+  </div>
+
+  <app-data-table [columns]="columns" [rows]="rows()"
+                  searchPlaceholder="Rechercher (utilisateur, endpoint, IP…)"
+                  emptyText="Aucune action enregistrée pour le moment"
+                  emptyHint="Les créations, modifications et suppressions apparaîtront ici.">
+  </app-data-table>
+</div>

@@ -1,0 +1,497 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Le site n'a pas (encore) de vrai mode sombre : on force le rendu clair des
+   contrôles natifs (champs, listes déroulantes, barres de défilement) même
+   lorsque le système d'exploitation est en mode sombre. */
+:root { color-scheme: light; }
+html, body { background-color: #ffffff; }
+
+/* ============================================================
+   ACCESSIBILITÉ
+   ============================================================ */
+/* Lien d'évitement : hors écran, révélé au focus clavier. */
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -3rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--color-primary, #00843B);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 0.5rem;
+  outline: none;
+}
+
+/* Anneau de focus visible uniquement au clavier (n'affecte pas les clics souris). */
+:where(a, button, [role="button"], input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primary, #00843B);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respecte la préférence système « réduire les animations ». */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   THÈME DU SITE (piloté par l'admin via /admin/themes)
+   Les couleurs de marque sont exposées en variables CSS, puis
+   le ThemeService applique le thème actif au démarrage.
+   Les classes utilitaires « en dur » (#00843B, etc.) sont
+   redéfinies ici pour lire ces variables → tout le site suit
+   le thème validé, sans modifier chaque composant.
+   ============================================================ */
+:root {
+  --color-primary: #00843B;
+  --color-primary-dark: #006B30;
+  --color-accent: #FCD116;
+  --color-secondary: #EF3340;
+  --color-tertiary: #B8860B;
+}
+
+/* --- Couleur primaire (#00843B) --- */
+.bg-\[\#00843B\]        { background-color: var(--color-primary); }
+.text-\[\#00843B\]      { color: var(--color-primary); }
+.border-\[\#00843B\]    { border-color: var(--color-primary); }
+.border-t-\[\#00843B\]  { border-top-color: var(--color-primary); }
+.bg-\[\#00843B\]\/10    { background-color: color-mix(in srgb, var(--color-primary) 10%, transparent); }
+.text-\[\#00843B\]\/40  { color: color-mix(in srgb, var(--color-primary) 40%, transparent); }
+.from-\[\#00843B\] {
+  --tw-gradient-from: var(--color-primary) var(--tw-gradient-from-position);
+  --tw-gradient-to: color-mix(in srgb, var(--color-primary), transparent) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.hover\:bg-\[\#00843B\]:hover        { background-color: var(--color-primary); }
+.hover\:text-\[\#00843B\]:hover      { color: var(--color-primary); }
+.hover\:border-\[\#00843B\]\/30:hover { border-color: color-mix(in srgb, var(--color-primary) 30%, transparent); }
+.hover\:border-\[\#00843B\]\/40:hover { border-color: color-mix(in srgb, var(--color-primary) 40%, transparent); }
+.focus\:border-\[\#00843B\]:focus    { border-color: var(--color-primary); }
+.focus\:ring-\[\#00843B\]:focus      { --tw-ring-color: var(--color-primary); }
+.focus\:ring-\[\#00843B\]\/30:focus  { --tw-ring-color: color-mix(in srgb, var(--color-primary) 30%, transparent); }
+.group:hover .group-hover\:text-\[\#00843B\] { color: var(--color-primary); }
+.group:hover .group-hover\:bg-\[\#00843B\]   { background-color: var(--color-primary); }
+
+/* --- Couleur primaire foncée (survols, dégradés : #006B30 / #006e31 / #006830 / #006a30) --- */
+.bg-\[\#006B30\]     { background-color: var(--color-primary-dark); }
+.text-\[\#006B30\]   { color: var(--color-primary-dark); }
+.border-\[\#006B30\] { border-color: var(--color-primary-dark); }
+.to-\[\#006B30\] { --tw-gradient-to: var(--color-primary-dark) var(--tw-gradient-to-position); }
+.to-\[\#006a30\] { --tw-gradient-to: var(--color-primary-dark) var(--tw-gradient-to-position); }
+.hover\:bg-\[\#006e31\]:hover  { background-color: var(--color-primary-dark); }
+.hover\:bg-\[\#006830\]:hover  { background-color: var(--color-primary-dark); }
+.hover\:text-\[\#006B30\]:hover { color: var(--color-primary-dark); }
+.focus\:ring-\[\#006B30\]:focus   { --tw-ring-color: var(--color-primary-dark); }
+.focus\:border-\[\#006B30\]:focus { border-color: var(--color-primary-dark); }
+
+/* --- Teintes CLAIRES de la primaire (fonds : #e7f6ee / #E6F5EB / #f0fdf4 / #d5efe0 / #d3efe0) ---
+   Dérivées de --color-primary pour suivre le thème sur TOUTES les pages. */
+.bg-\[\#e7f6ee\],
+.bg-\[\#E6F5EB\]              { background-color: color-mix(in srgb, var(--color-primary) 12%, white); }
+.hover\:bg-\[\#e7f6ee\]:hover,
+.hover\:bg-\[\#E6F5EB\]:hover { background-color: color-mix(in srgb, var(--color-primary) 12%, white); }
+.border-\[\#E6F5EB\]         { border-color: color-mix(in srgb, var(--color-primary) 12%, white); }
+.bg-\[\#f0fdf4\]             { background-color: color-mix(in srgb, var(--color-primary) 7%, white); }
+.hover\:bg-\[\#f0fdf4\]:hover { background-color: color-mix(in srgb, var(--color-primary) 7%, white); }
+.hover\:bg-\[\#d5efe0\]:hover,
+.hover\:bg-\[\#d3efe0\]:hover { background-color: color-mix(in srgb, var(--color-primary) 22%, white); }
+.from-\[\#E6F5EB\]\/60 {
+  --tw-gradient-from: color-mix(in srgb, color-mix(in srgb, var(--color-primary) 12%, white) 60%, transparent) var(--tw-gradient-from-position);
+  --tw-gradient-to: transparent var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+/* --- Vert MÉDIAN (#6FCF97) : dégradés, pastilles, bordures --- */
+.bg-\[\#6FCF97\]     { background-color: color-mix(in srgb, var(--color-primary) 55%, white); }
+.border-\[\#6FCF97\] { border-color: color-mix(in srgb, var(--color-primary) 55%, white); }
+.to-\[\#6FCF97\]     { --tw-gradient-to: color-mix(in srgb, var(--color-primary) 55%, white) var(--tw-gradient-to-position); }
+
+/* --- Vert TRÈS FONCÉ (#005026) : survols intenses --- */
+.hover\:bg-\[\#005026\]:hover   { background-color: color-mix(in srgb, var(--color-primary) 70%, black); }
+.hover\:text-\[\#005026\]:hover { color: color-mix(in srgb, var(--color-primary) 70%, black); }
+
+/* --- Variantes d'OPACITÉ de la primaire non couvertes plus haut --- */
+.bg-\[\#00843B\]\/5              { background-color: color-mix(in srgb, var(--color-primary) 5%, transparent); }
+.hover\:bg-\[\#00843B\]\/10:hover { background-color: color-mix(in srgb, var(--color-primary) 10%, transparent); }
+.text-\[\#00843B\]\/70          { color: color-mix(in srgb, var(--color-primary) 70%, transparent); }
+.border-\[\#00843B\]\/30        { border-color: color-mix(in srgb, var(--color-primary) 30%, transparent); }
+
+/* Animation des panneaux latéraux (drawers) qui s'ouvrent depuis la droite */
+@keyframes drawerIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.drawer-anim { animation: drawerIn .3s cubic-bezier(.22, 1, .36, 1); }
+
+/* Rendu public du contenu riche (HTML produit par l'éditeur Quill) :
+   restaure les styles que Tailwind réinitialise (listes, titres, liens). */
+.content-article {
+  h1 { font-size: 1.6rem; font-weight: 700; margin: 1rem 0 .5rem; }
+  h2 { font-size: 1.35rem; font-weight: 700; margin: 1rem 0 .5rem; }
+  h3 { font-size: 1.15rem; font-weight: 600; margin: .85rem 0 .4rem; }
+  p { margin: 0 0 .75rem; }
+  ul { list-style: disc; padding-left: 1.5rem; margin: 0 0 .75rem; }
+  ol { list-style: decimal; padding-left: 1.5rem; margin: 0 0 .75rem; }
+  li { margin: .2rem 0; }
+  a { color: var(--color-primary); text-decoration: underline; }
+  blockquote { border-left: 3px solid var(--color-primary); padding-left: 1rem; color: #475569; font-style: italic; margin: 0 0 .75rem; }
+  strong, b { font-weight: 700; }
+  em, i { font-style: italic; }
+  img { max-width: 100%; height: auto; border-radius: .5rem; margin: .5rem 0; }
+  h1, h2, h3 { line-height: 1.25; }
+}
+
+/* Éditeur riche (PrimeNG / Quill) : barre d'outils + zone d'édition confortable.
+   On cible directement les classes Quill (.ql-*) pour rester indépendant de la
+   version de PrimeNG. */
+.ql-toolbar.ql-snow {
+  border-color: #e2e8f0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background: #f8fafc;
+}
+.ql-container.ql-snow {
+  border-color: #e2e8f0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  font-size: 15px;
+}
+.ql-editor {
+  min-height: 240px;
+}
+/* Variante courte (champ Résumé) */
+.rich-editor-sm .ql-editor {
+  min-height: 120px;
+}
+/* Protège les icônes de la barre d'outils du reset Tailwind (svg{display:block}) */
+.ql-toolbar.ql-snow button svg,
+.ql-toolbar.ql-snow .ql-picker-label svg {
+  display: inline-block;
+  vertical-align: top;
+}
+
+/* Bloc de prévisualisation PDF inséré via l'éditeur riche (<app-rich-editor>).
+   Utilisé dans l'éditeur (.ql-editor) ET sur les pages publiques (.content-article).
+   Nécessite le pipe | safeHtml côté public pour conserver l'iframe. */
+.pdf-embed {
+  margin: 1rem 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.625rem;
+  overflow: hidden;
+  background: #f8fafc;
+}
+.pdf-embed iframe {
+  width: 100%;
+  height: 480px;
+  border: 0;
+  display: block;
+}
+.pdf-embed > a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-primary, #00843B);
+  text-decoration: none;
+  border-top: 1px solid #e2e8f0;
+}
+.pdf-embed > a:hover { background: #f1f5f9; }
+@media (max-width: 640px) {
+  .pdf-embed iframe { height: 320px; }
+}
+
+/* Barre d'outils de l'éditeur riche : bouton PDF personnalisé. */
+.ql-toolbar .ql-pdf { width: 28px; }
+.ql-toolbar .ql-pdf svg { vertical-align: middle; }
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+    /* clip (et non hidden) : bloque le débordement horizontal SANS casser position: sticky */
+    overflow-x: clip;
+  }
+
+  body {
+    @apply font-sans text-slate-700 bg-white antialiased;
+    overflow-x: clip;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold tracking-tight text-slate-800;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg
+           transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300;
+  }
+  
+  .btn-accent {
+    @apply btn bg-accent-500 text-white hover:bg-accent-600 focus:ring-accent-500;
+  }
+  
+  .btn-outline {
+    @apply btn border-2 border-primary-500 text-primary-600 bg-transparent hover:bg-primary-50;
+  }
+  
+  .btn-ghost {
+    @apply btn text-slate-600 hover:bg-slate-100 hover:text-slate-800;
+  }
+  
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+  
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .card {
+    @apply bg-white rounded-xl border border-slate-100 shadow-card transition-all duration-200;
+  }
+  
+  .card-hover {
+    @apply card hover:shadow-soft hover:border-slate-200;
+  }
+
+  .input {
+    @apply w-full px-4 py-2.5 text-sm bg-white border border-slate-200 rounded-lg
+           placeholder:text-slate-400 focus:outline-none focus:ring-2 
+           focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200;
+  }
+  
+  .input-label,
+  .label {
+    @apply block text-sm font-medium text-slate-700 mb-1.5;
+  }
+
+  .spinner {
+    @apply inline-block rounded-full border-2 border-slate-200 border-t-primary-500 animate-spin;
+  }
+
+  .select {
+    @apply input appearance-none cursor-pointer pr-10;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25rem;
+  }
+
+  .textarea {
+    @apply input min-h-[120px] resize-y;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium rounded-full;
+  }
+  
+  .badge-primary { @apply badge bg-primary-100 text-primary-700; }
+  .badge-accent { @apply badge bg-accent-100 text-accent-700; }
+  .badge-danger { @apply badge bg-danger-100 text-danger-700; }
+  .badge-slate { @apply badge bg-slate-100 text-slate-700; }
+
+  .tabs {
+    @apply flex gap-1 p-1 bg-slate-100 rounded-lg;
+  }
+  
+  .tab {
+    @apply px-4 py-2 text-sm font-medium text-slate-600 rounded-md
+           transition-all duration-200 cursor-pointer hover:text-slate-800;
+  }
+  
+  .tab-active {
+    @apply tab bg-white text-primary-600 shadow-sm;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+  }
+  
+  .modal {
+    @apply bg-white rounded-xl shadow-soft-lg max-w-lg w-full max-h-[90vh] overflow-hidden;
+  }
+
+  .table-container {
+    @apply overflow-x-auto rounded-lg border border-slate-200;
+  }
+  
+  .table {
+    @apply w-full text-sm;
+  }
+  
+  .table thead {
+    @apply bg-slate-50 border-b border-slate-200;
+  }
+  
+  .table th {
+    @apply px-4 py-3 text-left font-semibold text-slate-700 whitespace-nowrap;
+  }
+  
+  .table td {
+    @apply px-4 py-3 border-b border-slate-100;
+  }
+  
+  .table tbody tr {
+    @apply transition-colors hover:bg-slate-50;
+  }
+
+  .sidebar {
+    @apply fixed left-0 top-0 h-screen w-64 bg-white border-r border-slate-200 flex flex-col z-40;
+  }
+  
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 text-sm text-slate-600
+           transition-all duration-200 hover:bg-slate-50 hover:text-slate-800;
+  }
+  
+  .sidebar-link-active {
+    @apply sidebar-link bg-primary-50 text-primary-600 border-r-2 border-primary-500;
+  }
+
+  .dropdown {
+    @apply absolute top-full right-0 mt-2 min-w-[200px] bg-white rounded-lg
+           shadow-soft border border-slate-100 py-1 z-50;
+  }
+  
+  .dropdown-item {
+    @apply flex items-center gap-3 px-4 py-2 text-sm text-slate-700
+           transition-colors hover:bg-slate-50 cursor-pointer;
+  }
+
+  .avatar {
+    @apply inline-flex items-center justify-center rounded-full bg-primary-100 text-primary-600 font-medium;
+  }
+  
+  .avatar-sm { @apply w-8 h-8 text-xs; }
+  .avatar-md { @apply w-10 h-10 text-sm; }
+  .avatar-lg { @apply w-12 h-12 text-base; }
+
+  .progress {
+    @apply h-2 bg-slate-200 rounded-full overflow-hidden;
+  }
+  
+  .progress-bar {
+    @apply h-full bg-primary-500 rounded-full transition-all duration-500;
+  }
+
+  .stat-card {
+    @apply card p-6;
+  }
+  
+  .stat-value {
+    @apply text-3xl font-bold text-slate-800;
+  }
+  
+  .stat-label {
+    @apply text-sm text-slate-500 mt-1;
+  }
+
+  .section {
+    @apply py-16 md:py-20;
+  }
+  
+  .section-alt {
+    @apply bg-slate-50;
+  }
+  
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-accent-500;
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400;
+}
+
+::selection {
+  @apply bg-primary-100 text-primary-900;
+}
+
+/* ============================================================
+   GOUTTIÈRES DE PAGE — demande client
+   Le contenu occupe toute la largeur de l'écran. Bordures
+   latérales : 10 px sur petit écran, 30 px sur grand écran (≥ 1024 px).
+   On neutralise les conteneurs centrés « page » (.container,
+   .container-custom, .max-w-5xl/6xl/7xl.mx-auto). Les colonnes
+   de lecture étroites (max-w-2xl / 3xl / 4xl) restent centrées.
+   ============================================================ */
+.container,
+.container-custom,
+.max-w-5xl.mx-auto,
+.max-w-6xl.mx-auto,
+.max-w-7xl.mx-auto {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+@media (min-width: 1024px) {
+  .container,
+  .container-custom,
+  .max-w-5xl.mx-auto,
+  .max-w-6xl.mx-auto,
+  .max-w-7xl.mx-auto {
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+  }
+}

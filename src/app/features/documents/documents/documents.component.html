@@ -1,0 +1,100 @@
+<!-- Bannière -->
+<div class="relative overflow-hidden bg-gradient-to-r from-[#00843B] to-[#006B30] py-14">
+  <div class="absolute inset-0 opacity-10 pointer-events-none"
+       style="  background-size: 28px 28px;"></div>
+  <div class="container mx-auto px-4 relative">
+    <nav class="text-green-100 text-sm mb-3">
+      <a routerLink="/" class="hover:text-white transition-colors">Accueil</a>
+      <span class="mx-2">›</span>
+      <span class="text-white">Documents</span>
+    </nav>
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center flex-shrink-0">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      </div>
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-bold text-white">Documents &amp; ressources</h1>
+        <p class="text-green-100 text-sm mt-1">Rapports, guides, formulaires et publications du ministère</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="py-10 bg-gray-50 min-h-[60vh]">
+  <div class="container mx-auto px-4 max-w-6xl">
+
+    <!-- Recherche -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-3 mb-6 flex flex-col sm:flex-row gap-3">
+      <div class="flex-1 relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+        <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="search()" placeholder="Rechercher un document..."
+               class="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00843B]/30 focus:border-[#00843B] outline-none"/>
+      </div>
+      <button (click)="search()" class="px-6 py-2.5 bg-[#00843B] text-white text-sm font-medium rounded-xl hover:bg-[#006e31] transition-colors">Rechercher</button>
+    </div>
+
+    <!-- Chargement -->
+    <div *ngIf="loading()" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div *ngFor="let s of [1,2,3,4,5,6]" class="bg-white border border-slate-100 rounded-2xl p-5 animate-pulse h-40"></div>
+    </div>
+
+    <div *ngIf="!loading()">
+      <!-- Filtres catégories -->
+      <div class="flex flex-wrap items-center gap-2 mb-5">
+        <button (click)="selectType(null)"
+          class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+          [ngClass]="!selectedType() ? 'bg-[#00843B] text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'">
+          Tous ({{ totalAll() }})
+        </button>
+        <button *ngFor="let c of categories()" (click)="selectType(c.key)"
+          class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+          [ngClass]="selectedType() === c.key ? 'bg-[#00843B] text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'">
+          {{ getCategoryLabel(c.key) }} ({{ c.count }})
+        </button>
+      </div>
+
+      <!-- Vide -->
+      <div *ngIf="documents().length === 0" class="text-center py-16 bg-white rounded-2xl border border-slate-100">
+        <svg class="w-14 h-14 text-slate-200 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        <p class="text-slate-500 font-medium">Aucun document trouvé</p>
+      </div>
+
+      <!-- Grille -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let doc of documents()"
+             class="group bg-white border border-slate-200 rounded-2xl p-5 flex flex-col hover:shadow-md hover:border-[#00843B]/30 transition-all">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" [ngClass]="categoryStyle(doc.category).icon">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            </div>
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full mt-1" [ngClass]="categoryStyle(doc.category).badge">{{ getCategoryLabel(doc.category) }}</span>
+          </div>
+          <h3 class="font-semibold text-slate-800 leading-snug line-clamp-2">{{ doc.title }}</h3>
+          <p *ngIf="doc.description" class="text-sm text-slate-500 mt-1 line-clamp-2 flex-1">{{ stripHtml(doc.description) }}</p>
+          <div class="flex items-center gap-2 mt-3 text-xs text-slate-400">
+            <span *ngIf="doc.fileSize">{{ formatFileSize(doc.fileSize) }}</span>
+            <span *ngIf="doc.createdAt">· {{ doc.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <button *ngIf="doc.filePath" (click)="downloadFile(doc)"
+            class="mt-4 inline-flex items-center justify-center gap-2 w-full px-3.5 py-2 border border-[#00843B] text-[#00843B] text-sm font-medium rounded-xl hover:bg-[#e7f6ee] transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Télécharger
+          </button>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="totalPages() > 1" class="flex flex-wrap justify-center items-center gap-1.5 mt-8">
+        <button (click)="prevPage()" [disabled]="currentPage() === 1"
+          class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-white">‹</button>
+        <button *ngFor="let page of pages()" (click)="goToPage(page)"
+          class="px-3.5 py-1.5 text-sm rounded-lg border transition-colors"
+          [ngClass]="currentPage() === page ? 'bg-[#00843B] text-white border-[#00843B]' : 'border-slate-300 hover:bg-white'">
+          {{ page }}
+        </button>
+        <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
+          class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-white">›</button>
+      </div>
+    </div>
+  </div>
+</section>
